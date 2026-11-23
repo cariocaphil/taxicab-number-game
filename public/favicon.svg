@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 40" role="img">
+  <rect width="64" height="40" rx="8" fill="#F5C518" stroke="#202124" stroke-width="4"/>
+  <text
+    x="32"
+    y="26"
+    text-anchor="middle"
+    font-family="Courier New, Courier, monospace"
+    font-size="16"
+    font-weight="700"
+    fill="#202124"
+  >1729</text>
+</svg>
