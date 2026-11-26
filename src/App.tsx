@@ -1,6 +1,6 @@
 import { AppFooter } from './components/layout/AppFooter'
 import { AppHeader } from './components/layout/AppHeader'
-import { HomePage } from './pages/HomePage'
+import { GamePage } from './pages/GamePage'
 
 function App() {
   return (
@@ -10,7 +10,7 @@ function App() {
       </a>
       <AppHeader />
       <main id="main" className="app-main">
-        <HomePage />
+        <GamePage />
       </main>
       <AppFooter />
     </div>
