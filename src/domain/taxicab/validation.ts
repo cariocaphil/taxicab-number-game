@@ -12,6 +12,9 @@ function isPositiveSafeInteger(value: number): boolean {
 /**
  * Validates puzzle structure and that representations match the engine
  * (`findCubePairs`) exactly. Does not re-implement cube arithmetic.
+ *
+ * Collects all structural errors first. Mathematical comparison runs only
+ * when every structural check has passed.
  */
 export function validatePuzzle(puzzle: TaxicabPuzzle): PuzzleValidationResult {
   const errors: string[] = []
@@ -22,82 +25,71 @@ export function validatePuzzle(puzzle: TaxicabPuzzle): PuzzleValidationResult {
 
   if (!Number.isSafeInteger(puzzle.target) || puzzle.target <= 0) {
     errors.push('target must be a positive safe integer')
-    return { ok: false, errors }
   }
 
   if (!Array.isArray(puzzle.representations)) {
     errors.push('representations must be an array')
-    return { ok: false, errors }
-  }
-
-  if (puzzle.representations.length < 2) {
-    errors.push('puzzle must contain at least two distinct representations')
-  }
-
-  const seen = new Set<string>()
-  for (const [index, pair] of puzzle.representations.entries()) {
-    if (pair == null || typeof pair !== 'object') {
-      errors.push(`representation[${index}] must be an object`)
-      continue
+  } else {
+    if (puzzle.representations.length < 2) {
+      errors.push('puzzle must contain at least two distinct representations')
     }
 
-    if (!isPositiveSafeInteger(pair.a) || !isPositiveSafeInteger(pair.b)) {
-      errors.push(
-        `representation[${index}] must use positive safe integers for a and b`,
-      )
-      continue
-    }
+    const seen = new Set<string>()
+    for (const [index, pair] of puzzle.representations.entries()) {
+      if (pair == null || typeof pair !== 'object') {
+        errors.push(`representation[${index}] must be an object`)
+        continue
+      }
 
-    if (pair.a > pair.b) {
-      errors.push(
-        `representation[${index}] must be normalized with a <= b (got ${pair.a}, ${pair.b})`,
-      )
-    }
+      if (!isPositiveSafeInteger(pair.a) || !isPositiveSafeInteger(pair.b)) {
+        errors.push(
+          `representation[${index}] must use positive safe integers for a and b`,
+        )
+        continue
+      }
 
-    const key = pairKey(pair)
-    if (seen.has(key)) {
-      errors.push(`duplicate representation: (${pair.a}, ${pair.b})`)
-    }
-    seen.add(key)
-  }
+      if (pair.a > pair.b) {
+        errors.push(
+          `representation[${index}] must be normalized with a <= b (got ${pair.a}, ${pair.b})`,
+        )
+      }
 
-  // Engine is the single source of mathematical truth.
-  let expected: CubePair[]
-  try {
-    expected = findCubePairs(puzzle.target)
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error)
-    errors.push(`unable to discover cube pairs for target: ${message}`)
-    return { ok: false, errors }
-  }
-
-  const expectedKeys = new Set(expected.map(pairKey))
-  const suppliedKeys = new Set(
-    puzzle.representations
-      .filter(
-        (pair) =>
-          pair != null &&
-          typeof pair === 'object' &&
-          isPositiveSafeInteger(pair.a) &&
-          isPositiveSafeInteger(pair.b) &&
-          pair.a <= pair.b,
-      )
-      .map(pairKey),
-  )
-
-  for (const key of suppliedKeys) {
-    if (!expectedKeys.has(key)) {
-      errors.push(
-        `representation (${key.replace(',', ', ')}) is not a valid cube pair for target ${puzzle.target}`,
-      )
+      const key = pairKey(pair)
+      if (seen.has(key)) {
+        errors.push(`duplicate representation: (${pair.a}, ${pair.b})`)
+      }
+      seen.add(key)
     }
   }
 
-  for (const key of expectedKeys) {
-    if (!suppliedKeys.has(key)) {
-      errors.push(
-        `missing representation (${key.replace(',', ', ')}) for target ${puzzle.target}`,
-      )
+  // Engine comparison only when all structural checks passed.
+  if (errors.length === 0) {
+    let expected: CubePair[]
+    try {
+      expected = findCubePairs(puzzle.target)
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error)
+      errors.push(`unable to discover cube pairs for target: ${message}`)
+      return { ok: false, errors }
+    }
+
+    const expectedKeys = new Set(expected.map(pairKey))
+    const suppliedKeys = new Set(puzzle.representations.map(pairKey))
+
+    for (const key of suppliedKeys) {
+      if (!expectedKeys.has(key)) {
+        errors.push(
+          `representation (${key.replace(',', ', ')}) is not a valid cube pair for target ${puzzle.target}`,
+        )
+      }
+    }
+
+    for (const key of expectedKeys) {
+      if (!suppliedKeys.has(key)) {
+        errors.push(
+          `missing representation (${key.replace(',', ', ')}) for target ${puzzle.target}`,
+        )
+      }
     }
   }
 

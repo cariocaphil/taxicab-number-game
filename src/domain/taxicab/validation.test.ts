@@ -102,4 +102,25 @@ describe('validatePuzzle', () => {
     expect(validatePuzzle(withZero).ok).toBe(false)
     expect(validatePuzzle(withNegative).ok).toBe(false)
   })
+
+  it('collects multiple structural errors together', () => {
+    const puzzle: TaxicabPuzzle = {
+      id: '',
+      target: -5,
+      representations: [{ a: 1, b: 12 }],
+    }
+    const result = validatePuzzle(puzzle)
+    expect(result.ok).toBe(false)
+    if (!result.ok) {
+      expect(result.errors.some((error) => /id must be a non-empty string/i.test(error))).toBe(
+        true,
+      )
+      expect(
+        result.errors.some((error) => /target must be a positive safe integer/i.test(error)),
+      ).toBe(true)
+      expect(
+        result.errors.some((error) => /at least two distinct representations/i.test(error)),
+      ).toBe(true)
+    }
+  })
 })
