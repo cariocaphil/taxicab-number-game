@@ -13,6 +13,9 @@ dist-ssr
 *.local
 coverage
 
+# Local Claude / agent plans (not part of the published product)
+.claude/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

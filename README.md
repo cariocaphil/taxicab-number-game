@@ -14,6 +14,30 @@ Taxicab numbers make abstract number theory tangible. By framing discovery aroun
 
 In 1918, G. H. Hardy visited Srinivasa Ramanujan in hospital and remarked that the taxi he had taken bore the rather dull number 1729. Ramanujan replied at once that 1729 is actually remarkable: it is the smallest positive integer that can be expressed as the sum of two positive cubes in two different ways. That anecdote is the spark for this game.
 
+## Mathematical domain
+
+The pure TypeScript domain lives in `src/domain/taxicab/` and has **no React dependency**.
+
+### Concept
+
+A cube pair `(a, b)` with `1 ≤ a ≤ b` satisfies `a³ + b³ = target`. Some targets admit two or more distinct pairs. That property is what the game will explore.
+
+**Taxicab(n)** (also written **Ta(n)**) is the conventional sequence of the *smallest* positive integers that can be written as a sum of two positive cubes in *n* distinct ways. **1729** is Ta(2). Other catalogue entries (4104, 13832, 20683) also have two representations, but they are larger than 1729 and are included as educational examples—not as further terms of Ta(n).
+
+### Domain model
+
+- `CubePair` — `{ a, b }` with the normalization invariant `1 ≤ a ≤ b`
+- `TaxicabPuzzle` — `{ id, target, representations }` with no gameplay state
+
+### Engine
+
+- `cube`, `sumOfCubes`, `findCubePairs` — public `number` API with **BigInt** arithmetic internally
+- `validatePuzzle` — structural checks plus set-equality against `findCubePairs` (the engine is the source of mathematical truth)
+
+### Puzzle catalogue
+
+`TAXICAB_PUZZLES` currently includes four verified targets: **1729**, **4104**, **13832**, and **20683**, each with two distinct cube-sum representations.
+
 ## Technology stack
 
 - React 19
@@ -52,6 +76,8 @@ pnpm typecheck
 pnpm test
 ```
 
+Domain unit tests run under Vitest’s node environment and do not require a browser.
+
 ### Production build
 
 ```bash
@@ -66,7 +92,10 @@ pnpm preview
 
 ## Project status
 
-This repository currently ships **PR #1 — Project Foundation & Application Shell**: a responsive landing page with branding, a mathematically accurate introduction to 1729, and illustrative (non-interactive) taxi plate placeholders. Game mechanics are intentionally out of scope for this PR.
+- **PR #1** — Project Foundation & Application Shell (landing page)
+- **PR #2** — Taxicab Number Domain Model & Mathematical Engine (this layer)
+
+Game UI, progressive reveal, and 3D visualization remain for later PRs.
 
 ## Roadmap (provisional)
 
