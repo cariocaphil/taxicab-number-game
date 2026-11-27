@@ -54,8 +54,7 @@ export function TaxiSelectionGrid({
             : isIncorrect
               ? 'incorrect'
               : 'default'
-          const disabled =
-            selectionsLocked || isIncorrect || (correctSelected && !isCorrect)
+          const disabled = selectionsLocked || isIncorrect
 
           return (
             <TaxiCab
