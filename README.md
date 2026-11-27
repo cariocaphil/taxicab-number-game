@@ -38,6 +38,14 @@ A cube pair `(a, b)` with `1 ≤ a ≤ b` satisfies `a³ + b³ = target`. Some t
 
 `TAXICAB_PUZZLES` currently includes four verified targets: **1729**, **4104**, **13832**, and **20683**, each with two distinct cube-sum representations.
 
+## Interactive game
+
+The main UI (`GamePage`) loads the **1729** puzzle from the domain catalogue via `getPuzzleById` and never hardcodes cube pairs in React components.
+
+Players see the target as a stylized taxi license plate and two hidden equations (`?³ + ?³ = 1729`). A reveal control progressively discloses each representation from the domain data. When every representation is visible, a short educational completion message explains why 1729 is special. Restart hides the answers again without reloading the page.
+
+Reveal progression is driven by `useTaxicabGame`, which tracks only how many representations have been shown and derives completion from the puzzle’s actual representation count.
+
 ## Technology stack
 
 - React 19
@@ -92,18 +100,19 @@ pnpm preview
 
 ## Project status
 
-- **PR #1** — Project Foundation & Application Shell (landing page)
-- **PR #2** — Taxicab Number Domain Model & Mathematical Engine (this layer)
+- **PR #1** — Project Foundation & Application Shell
+- **PR #2** — Taxicab Number Domain Model & Mathematical Engine
+- **PR #3** — Interactive Taxicab Number Game (progressive reveal for 1729)
 
-Game UI, progressive reveal, and 3D visualization remain for later PRs.
+Further gallery, multi-puzzle discovery, and 3D visualization remain for later PRs.
 
 ## Roadmap (provisional)
 
 - **PR #1** — Project Foundation & Application Shell
 - **PR #2** — Taxicab Number Domain Model
-- **PR #3** — Interactive Taxi Gallery
-- **PR #4** — Number Discovery Game
-- **PR #5** — Progressive Cube Revelation
+- **PR #3** — Interactive Taxicab Number Game (progressive reveal)
+- **PR #4** — Interactive Taxi Gallery / multi-puzzle selection
+- **PR #5** — Number Discovery Game (player guesses)
 - **PR #6** — Interactive 3D Cube Visualization
 
 ## License

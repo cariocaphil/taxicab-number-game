@@ -10,45 +10,21 @@ describe('App', () => {
     ).toBeInTheDocument()
   })
 
-  it('renders the hero heading', () => {
-    render(<App />)
-    expect(
-      screen.getByRole('heading', {
-        level: 1,
-        name: 'Every number has a story.',
-      }),
-    ).toBeInTheDocument()
-  })
-
   it('features the number 1729', () => {
     render(<App />)
     expect(screen.getAllByText(/1729/).length).toBeGreaterThan(0)
   })
 
-  it('displays the Hardy–Ramanujan cube relationship', () => {
-    render(<App />)
-    expect(
-      screen.getByText(/sum of two positive integer cubes in two distinct ways/i),
-    ).toBeInTheDocument()
-    expect(
-      screen.getByRole('math', {
-        name: /1729 equals 1 cubed plus 12 cubed/i,
-      }),
-    ).toBeInTheDocument()
-  })
-
-  it('renders the game preview section', () => {
+  it('renders the interactive game', () => {
     render(<App />)
     expect(
       screen.getByRole('heading', {
-        level: 2,
-        name: 'Discover the hidden numbers',
+        level: 1,
+        name: 'Discover the taxicab number',
       }),
     ).toBeInTheDocument()
-  })
-
-  it('shows coming-soon messaging', () => {
-    render(<App />)
-    expect(screen.getByText(/coming soon/i)).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Reveal first representation' }),
+    ).toBeInTheDocument()
   })
 })
