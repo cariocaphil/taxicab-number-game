@@ -74,11 +74,14 @@
 
 .taxi-plate__number {
   font-family: var(--font-plate);
-  font-size: clamp(3rem, 10vw, 4.5rem);
+  font-size: clamp(2rem, 8vw, 4.5rem);
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   color: var(--color-charcoal);
   line-height: 1;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  padding-inline: var(--space-xs);
 }
 
 @keyframes taxi-plate-settle {

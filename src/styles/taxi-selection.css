@@ -1,0 +1,167 @@
+/* —— Taxi selection phase —— */
+
+.taxi-selection {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: var(--space-xl) var(--space-lg) var(--space-2xl);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-lg);
+  text-align: center;
+}
+
+.taxi-selection__heading {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  margin: 0;
+}
+
+.taxi-selection__prompt {
+  max-width: 40rem;
+  font-size: 1.1rem;
+  color: var(--color-muted);
+  margin: 0;
+}
+
+.taxi-selection__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-md);
+  width: min(100%, 52rem);
+}
+
+.taxi-selection__feedback {
+  min-height: 1.5rem;
+  margin: 0;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.taxi-selection__continue {
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  font-weight: 700;
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  background: var(--color-taxi-yellow);
+  color: var(--color-charcoal);
+  border: 2px solid var(--color-plate-border);
+  transition:
+    background-color var(--transition-fast),
+    opacity var(--transition-fast);
+}
+
+.taxi-selection__continue:hover {
+  background: #e6b800;
+}
+
+.taxi-selection__continue:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
+/* —— Selectable taxi cab —— */
+
+.taxi-cab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-sm);
+  border: 2px solid rgba(32, 33, 36, 0.18);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-elevated);
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  transition:
+    border-color var(--transition-fast),
+    transform var(--transition-fast),
+    opacity var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.taxi-cab:hover:not(:disabled) {
+  border-color: var(--color-charcoal);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(32, 33, 36, 0.12);
+}
+
+.taxi-cab:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
+.taxi-cab:disabled {
+  cursor: not-allowed;
+}
+
+.taxi-cab--incorrect {
+  border-color: #b3261e;
+  opacity: 0.72;
+}
+
+.taxi-cab--correct {
+  border-color: #0f7b3a;
+  box-shadow: 0 0 0 2px rgba(15, 123, 58, 0.25);
+}
+
+.taxi-cab__svg {
+  width: min(100%, 9.5rem);
+  height: auto;
+}
+
+.taxi-cab__plate {
+  font-family: var(--font-plate);
+  font-size: clamp(0.95rem, 2.8vw, 1.35rem);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  background: var(--color-taxi-yellow);
+  border: 2px solid var(--color-plate-border);
+  border-radius: 0.4rem;
+  padding: 0.2rem 0.55rem;
+  min-width: 5.5rem;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  line-height: 1.2;
+}
+
+.taxi-cab__status {
+  font-size: 0.85rem;
+  font-weight: 700;
+  min-height: 1.2em;
+}
+
+.taxi-cab--incorrect .taxi-cab__status {
+  color: #b3261e;
+}
+
+.taxi-cab--correct .taxi-cab__status {
+  color: #0f7b3a;
+}
+
+.game-page__new-round {
+  margin-top: var(--space-sm);
+}
+
+@media (max-width: 40rem) {
+  .taxi-selection__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-sm);
+  }
+
+  .taxi-cab__plate {
+    font-size: clamp(0.85rem, 3.5vw, 1.1rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .taxi-cab {
+    transition: none;
+  }
+
+  .taxi-cab:hover:not(:disabled) {
+    transform: none;
+  }
+}

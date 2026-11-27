@@ -1,10 +1,6 @@
 # The Taxicab Number Game
 
-An interactive educational mathematics game inspired by the famous Hardy–Ramanujan number **1729**.
-
-Players explore numbers that can be written as the sum of two positive integer cubes in more than one way. The classic example is:
-
-**1729 = 1³ + 12³ = 9³ + 10³**
+An interactive educational mathematics game inspired by the famous Hardy–Ramanujan number **1729** and the broader sequence of numbers that share its remarkable property.
 
 ## Motivation
 
@@ -14,37 +10,57 @@ Taxicab numbers make abstract number theory tangible. By framing discovery aroun
 
 In 1918, G. H. Hardy visited Srinivasa Ramanujan in hospital and remarked that the taxi he had taken bore the rather dull number 1729. Ramanujan replied at once that 1729 is actually remarkable: it is the smallest positive integer that can be expressed as the sum of two positive cubes in two different ways. That anecdote is the spark for this game.
 
+## Mathematical foundation
+
+The game explores numbers from **OEIS [A001235](https://oeis.org/A001235)**: positive integers that can be written as the sum of two positive integer cubes in **at least two** distinct ways. Classic examples include 1729, 4104, 13832, and many larger values.
+
+This is broader than the strict **Taxicab / Ta(n)** sequence, which identifies only the *smallest* positive integer with *n* distinct representations. **1729** is Ta(2). Later catalogue entries also have two representations, but they are larger educational examples from A001235 — not further Ta(n) terms.
+
+The project keeps the name *Taxicab Number Game* while using mathematically accurate explanations in the UI and documentation.
+
+## Two-phase game experience
+
+### Phase 1 — Spot the taxicab number
+
+Players see six selectable taxis with mixed **four-, five-, and six-digit** license plates (exactly two of each length). Exactly one plate is an A001235 number from the curated catalogue. Incorrect picks give accessible feedback; a correct pick locks the fleet and offers **Continue**.
+
+### Phase 2 — Reveal the representations
+
+Continue unlocks the progressive reveal experience: the discovered number appears on a taxi plate with two hidden cube-sum equations. Players reveal each representation from domain data. After completion they can start a **New round** with a fresh target and distractors.
+
+Surrounding chrome (such as the header brand) does not reveal the current target.
+
 ## Mathematical domain
 
 The pure TypeScript domain lives in `src/domain/taxicab/` and has **no React dependency**.
-
-### Concept
-
-A cube pair `(a, b)` with `1 ≤ a ≤ b` satisfies `a³ + b³ = target`. Some targets admit two or more distinct pairs. That property is what the game will explore.
-
-**Taxicab(n)** (also written **Ta(n)**) is the conventional sequence of the *smallest* positive integers that can be written as a sum of two positive cubes in *n* distinct ways. **1729** is Ta(2). Other catalogue entries (4104, 13832, 20683) also have two representations, but they are larger than 1729 and are included as educational examples—not as further terms of Ta(n).
 
 ### Domain model
 
 - `CubePair` — `{ a, b }` with the normalization invariant `1 ≤ a ≤ b`
 - `TaxicabPuzzle` — `{ id, target, representations }` with no gameplay state
+- `TaxicabRound` — `{ puzzle, candidates }` for a selection round
 
 ### Engine
 
 - `cube`, `sumOfCubes`, `findCubePairs` — public `number` API with **BigInt** arithmetic internally
-- `validatePuzzle` — structural checks plus set-equality against `findCubePairs` (the engine is the source of mathematical truth)
+- `validatePuzzle` — structural checks plus set-equality against `findCubePairs`
+- `generateTaxicabRound` — mixed-digit round generation with injectable randomness
 
 ### Puzzle catalogue
 
-`TAXICAB_PUZZLES` currently includes four verified targets: **1729**, **4104**, **13832**, and **20683**, each with two distinct cube-sum representations.
+`TAXICAB_PUZZLES` is a local, deterministic curated subset of A001235 (≥12 puzzles) covering four-, five-, and six-digit targets. Each entry for this PR has **exactly two** representations, verified against `findCubePairs`. Existing IDs such as `1729` remain stable. There is **no** runtime OEIS fetch.
 
-## Interactive game
+### Round generation strategy
 
-The main UI (`GamePage`) loads the **1729** puzzle from the domain catalogue via `getPuzzleById` and never hardcodes cube pairs in React components.
+Each round:
 
-Players see the target as a stylized taxi license plate and two hidden equations (`?³ + ?³ = 1729`). A reveal control progressively discloses each representation from the domain data. When every representation is visible, a short educational completion message explains why 1729 is special. Restart hides the answers again without reloading the page.
+1. Picks a catalogue puzzle at random (avoiding an immediate repeat of the previous target when alternatives exist).
+2. Builds digit quotas `{4:2, 5:2, 6:2}`, consuming one slot for the target’s length.
+3. Fills remaining slots with **distractors** of the required length.
 
-Reveal progression is driven by `useTaxicabGame`, which tracks only how many representations have been shown and derives completion from the puzzle’s actual representation count.
+Distractors are **not** assumed incorrect merely because they are absent from the catalogue. Each candidate is checked with `findCubePairs` and accepted only when it has fewer than two distinct positive cube-pair representations.
+
+Generation uses **bounded random sampling** (128 attempts) then a **capped sequential fallback** (256 probes) so rounds always terminate — including under pathological deterministic RNG. Candidate order is shuffled with Fisher–Yates.
 
 ## Technology stack
 
@@ -102,16 +118,15 @@ pnpm preview
 
 - **PR #1** — Project Foundation & Application Shell
 - **PR #2** — Taxicab Number Domain Model & Mathematical Engine
-- **PR #3** — Interactive Taxicab Number Game (progressive reveal for 1729)
-
-Further gallery, multi-puzzle discovery, and 3D visualization remain for later PRs.
+- **PR #3** — Interactive Taxicab Number Game (progressive reveal)
+- **PR #4** — Spot the Taxicab Number (A001235 selection + dynamic reveal)
 
 ## Roadmap (provisional)
 
 - **PR #1** — Project Foundation & Application Shell
 - **PR #2** — Taxicab Number Domain Model
 - **PR #3** — Interactive Taxicab Number Game (progressive reveal)
-- **PR #4** — Interactive Taxi Gallery / multi-puzzle selection
+- **PR #4** — Spot the Taxicab Number (mixed-digit discovery + dynamic reveal)
 - **PR #5** — Number Discovery Game (player guesses)
 - **PR #6** — Interactive 3D Cube Visualization
 

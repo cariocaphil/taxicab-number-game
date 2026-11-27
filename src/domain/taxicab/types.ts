@@ -20,3 +20,6 @@ export interface TaxicabPuzzle {
 export type PuzzleValidationResult =
   | { readonly ok: true }
   | { readonly ok: false; readonly errors: readonly string[] }
+
+/** Session phases for the two-part discovery experience. */
+export type GamePhase = 'selecting' | 'revealing'
