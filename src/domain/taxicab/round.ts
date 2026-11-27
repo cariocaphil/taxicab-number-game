@@ -66,7 +66,8 @@ function assertSupportedDigitLength(target: number, id: string): DigitLength {
 
 /**
  * Validates a puzzle catalog for round generation: non-empty, supported digit
- * lengths, and representations that match the engine with exactly two pairs.
+ * lengths, and engine-equal representations via `validatePuzzle`. The exact-two
+ * pair requirement for this PR is enforced through `representations.length`.
  */
 export function validateRoundCatalog(
   puzzles: readonly TaxicabPuzzle[],
@@ -88,13 +89,6 @@ export function validateRoundCatalog(
     if (puzzle.representations.length !== 2) {
       throw new Error(
         `Puzzle "${puzzle.id}" must have exactly two representations for round generation`,
-      )
-    }
-
-    const enginePairs = findCubePairs(puzzle.target)
-    if (enginePairs.length !== 2) {
-      throw new Error(
-        `Puzzle "${puzzle.id}" target must have exactly two cube-pair representations`,
       )
     }
   }
