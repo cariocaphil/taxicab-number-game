@@ -7,20 +7,6 @@ export interface UseTaxicabGameResult {
   readonly isComplete: boolean
   readonly revealNext: () => void
   readonly restart: () => void
-  readonly revealButtonLabel: string
-}
-
-function revealButtonLabelFor(
-  revealedCount: number,
-  total: number,
-): string {
-  if (revealedCount >= total) {
-    return 'All representations revealed'
-  }
-  if (revealedCount === 0) {
-    return 'Reveal first representation'
-  }
-  return 'Reveal next representation'
 }
 
 export function useTaxicabGame(puzzle: TaxicabPuzzle): UseTaxicabGameResult {
@@ -44,6 +30,5 @@ export function useTaxicabGame(puzzle: TaxicabPuzzle): UseTaxicabGameResult {
     isComplete,
     revealNext,
     restart,
-    revealButtonLabel: revealButtonLabelFor(revealedCount, total),
   }
 }

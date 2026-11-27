@@ -21,15 +21,12 @@ const TA3_FIXTURE: TaxicabPuzzle = {
 }
 
 describe('useTaxicabGame', () => {
-  it('starts with nothing revealed and the first-reveal label', () => {
+  it('starts with nothing revealed', () => {
     const { result } = renderHook(() => useTaxicabGame(puzzle1729))
 
     expect(result.current.revealedCount).toBe(0)
     expect(result.current.canReveal).toBe(true)
     expect(result.current.isComplete).toBe(false)
-    expect(result.current.revealButtonLabel).toBe(
-      'Reveal first representation',
-    )
   })
 
   it('reveals representations one at a time up to the puzzle length', () => {
@@ -41,9 +38,6 @@ describe('useTaxicabGame', () => {
     })
 
     expect(result.current.revealedCount).toBe(1)
-    expect(result.current.revealButtonLabel).toBe(
-      'Reveal next representation',
-    )
     expect(result.current.isComplete).toBe(false)
 
     act(() => {
@@ -53,9 +47,6 @@ describe('useTaxicabGame', () => {
     expect(result.current.revealedCount).toBe(total)
     expect(result.current.canReveal).toBe(false)
     expect(result.current.isComplete).toBe(true)
-    expect(result.current.revealButtonLabel).toBe(
-      'All representations revealed',
-    )
   })
 
   it('does not advance beyond the available representations', () => {
@@ -90,9 +81,6 @@ describe('useTaxicabGame', () => {
     expect(result.current.revealedCount).toBe(0)
     expect(result.current.canReveal).toBe(true)
     expect(result.current.isComplete).toBe(false)
-    expect(result.current.revealButtonLabel).toBe(
-      'Reveal first representation',
-    )
   })
 
   it('generalizes reveal progression to three representations', () => {
@@ -111,9 +99,6 @@ describe('useTaxicabGame', () => {
       result.current.revealNext()
     })
     expect(result.current.revealedCount).toBe(2)
-    expect(result.current.revealButtonLabel).toBe(
-      'Reveal next representation',
-    )
 
     act(() => {
       result.current.revealNext()

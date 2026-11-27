@@ -37,7 +37,6 @@ export function GamePage() {
     isComplete,
     revealNext,
     restart,
-    revealButtonLabel,
   } = useTaxicabGame(puzzle)
 
   return (
@@ -72,7 +71,7 @@ export function GamePage() {
       </div>
 
       <RevealControls
-        revealLabel={revealButtonLabel}
+        revealedCount={revealedCount}
         canReveal={canReveal}
         onReveal={revealNext}
         onRestart={restart}

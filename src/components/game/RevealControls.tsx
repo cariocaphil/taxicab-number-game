@@ -1,16 +1,28 @@
 interface RevealControlsProps {
-  readonly revealLabel: string
+  readonly revealedCount: number
   readonly canReveal: boolean
   readonly onReveal: () => void
   readonly onRestart: () => void
 }
 
+function revealButtonLabel(revealedCount: number, canReveal: boolean): string {
+  if (!canReveal) {
+    return 'All representations revealed'
+  }
+  if (revealedCount === 0) {
+    return 'Reveal first representation'
+  }
+  return 'Reveal next representation'
+}
+
 export function RevealControls({
-  revealLabel,
+  revealedCount,
   canReveal,
   onReveal,
   onRestart,
 }: RevealControlsProps) {
+  const label = revealButtonLabel(revealedCount, canReveal)
+
   return (
     <div className="reveal-controls">
       <button
@@ -19,7 +31,7 @@ export function RevealControls({
         onClick={onReveal}
         disabled={!canReveal}
       >
-        {revealLabel}
+        {label}
       </button>
       <button
         type="button"
