@@ -48,6 +48,9 @@ export function useGameSession(
     if (phase !== 'selecting' || correctSelected) {
       return
     }
+    if (!round.candidates.includes(number)) {
+      return
+    }
     if (incorrectSelections.has(number)) {
       return
     }

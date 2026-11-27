@@ -38,6 +38,19 @@ describe('useGameSession', () => {
     expect(result.current.correctSelected).toBe(false)
   })
 
+  it('ignores selections that are not in the current candidates', () => {
+    const { result } = renderHook(() =>
+      useGameSession({ generateRound: () => round }),
+    )
+
+    act(() => {
+      result.current.selectTaxi(999)
+    })
+
+    expect(result.current.incorrectSelections.size).toBe(0)
+    expect(result.current.correctSelected).toBe(false)
+  })
+
   it('marks the correct taxi and advances to revealing on continue', () => {
     const { result } = renderHook(() =>
       useGameSession({ generateRound: () => round }),
