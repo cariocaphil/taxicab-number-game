@@ -35,11 +35,11 @@
 }
 
 .cube-viz__dimension--primary {
-  border-left: 4px solid #c9851a;
+  border-left: 4px solid var(--cube-primary-face);
 }
 
 .cube-viz__dimension--secondary {
-  border-left: 4px solid #2f6fed;
+  border-left: 4px solid var(--cube-secondary-face);
 }
 
 .cube-viz__swatch {
@@ -54,20 +54,20 @@
 .cube-viz__dimension--primary .cube-viz__swatch {
   background: repeating-linear-gradient(
     0deg,
-    #c9851a,
-    #c9851a 2px,
-    #f0d29a 2px,
-    #f0d29a 4px
+    var(--cube-primary-face),
+    var(--cube-primary-face) 2px,
+    var(--cube-primary-hatch) 2px,
+    var(--cube-primary-hatch) 4px
   );
 }
 
 .cube-viz__dimension--secondary .cube-viz__swatch {
   background: repeating-linear-gradient(
     45deg,
-    #2f6fed,
-    #2f6fed 2px,
-    #a9c2f7 2px,
-    #a9c2f7 4px
+    var(--cube-secondary-face),
+    var(--cube-secondary-face) 2px,
+    var(--cube-secondary-hatch) 2px,
+    var(--cube-secondary-hatch) 4px
   );
 }
 

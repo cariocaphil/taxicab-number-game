@@ -11,6 +11,7 @@ import {
 } from 'react'
 import { cube, type CubePair } from '../../domain/taxicab'
 import { pairUsesSimplifiedGrid } from './cubeLayout'
+import { cubeVariantThemeCssVars } from './cubeTheme'
 import { CubeVisualizationFallback } from './CubeVisualizationFallback'
 import { isWebGLAvailable } from './webglSupport'
 import '../../styles/cube-visualization.css'
@@ -109,6 +110,7 @@ export function CubeVisualization({ pair }: CubeVisualizationProps) {
   return (
     <figure
       className="cube-viz"
+      style={cubeVariantThemeCssVars()}
       aria-describedby={captionId}
       data-testid="cube-visualization"
     >

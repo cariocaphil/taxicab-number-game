@@ -1,23 +1,17 @@
 import { useLayoutEffect, useMemo } from 'react'
 import { gridDensityForEdge } from './cubeLayout'
+import {
+  CUBE_VARIANT_THEME,
+  type CubeBlockVariant,
+} from './cubeTheme'
 import { buildSurfaceGridGeometry } from './surfaceGrid'
 
-export type CubeBlockVariant = 'primary' | 'secondary'
+export type { CubeBlockVariant }
 
 interface UnitCubeBlockProps {
   readonly edge: number
   readonly position: readonly [number, number, number]
   readonly variant: CubeBlockVariant
-}
-
-const FACE_COLORS: Record<CubeBlockVariant, string> = {
-  primary: '#c9851a',
-  secondary: '#2f6fed',
-}
-
-const EDGE_COLORS: Record<CubeBlockVariant, string> = {
-  primary: '#5c3a0a',
-  secondary: '#163a8a',
 }
 
 export function UnitCubeBlock({
@@ -26,6 +20,7 @@ export function UnitCubeBlock({
   variant,
 }: UnitCubeBlockProps) {
   const density = gridDensityForEdge(edge)
+  const theme = CUBE_VARIANT_THEME[variant]
 
   const gridGeometry = useMemo(
     () => buildSurfaceGridGeometry(edge, density.segments),
@@ -43,16 +38,16 @@ export function UnitCubeBlock({
       <mesh>
         <boxGeometry args={[edge, edge, edge]} />
         <meshStandardMaterial
-          color={FACE_COLORS[variant]}
+          color={theme.face}
           roughness={0.55}
           metalness={0.05}
-          emissive={variant === 'secondary' ? '#0a1a40' : '#000000'}
-          emissiveIntensity={variant === 'secondary' ? 0.15 : 0}
+          emissive={theme.emissive}
+          emissiveIntensity={theme.emissiveIntensity}
         />
       </mesh>
       <lineSegments geometry={gridGeometry}>
         <lineBasicMaterial
-          color={EDGE_COLORS[variant]}
+          color={theme.edge}
           transparent
           opacity={0.85}
         />

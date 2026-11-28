@@ -1,3 +1,5 @@
+import { CUBE_VARIANT_THEME } from './cubeTheme'
+
 interface CubeVisualizationFallbackProps {
   readonly a: number
   readonly b: number
@@ -14,6 +16,8 @@ export function CubeVisualizationFallback({
 }: CubeVisualizationFallbackProps) {
   const maxEdge = Math.max(a, b)
   const scale = 7.5 / maxEdge
+  const primary = CUBE_VARIANT_THEME.primary
+  const secondary = CUBE_VARIANT_THEME.secondary
 
   return (
     <div
@@ -31,8 +35,8 @@ export function CubeVisualizationFallback({
           scale={scale}
           originX={70}
           originY={120}
-          fill="#c9851a"
-          stroke="#5c3a0a"
+          fill={primary.face}
+          stroke={primary.edge}
           hatch="primary"
         />
         <IsometricCube
@@ -40,8 +44,8 @@ export function CubeVisualizationFallback({
           scale={scale}
           originX={210}
           originY={120}
-          fill="#2f6fed"
-          stroke="#163a8a"
+          fill={secondary.face}
+          stroke={secondary.edge}
           hatch="secondary"
         />
       </svg>
