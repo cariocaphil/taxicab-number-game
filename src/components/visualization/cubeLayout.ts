@@ -1,10 +1,7 @@
 /**
  * Pure layout helpers for cube-pair 3D framing and surface grid density.
- * Keep GPU-free so Vitest can cover catalogue extremes (max edge 53) without WebGL.
+ * Keep GPU-free so Vitest can cover catalogue extremes without WebGL.
  */
-
-/** Largest cube edge length appearing in TAXICAB_PUZZLES. */
-export const CATALOGUE_MAX_EDGE = 53
 
 /** Edges at or below this length get a true 1-unit surface grid. */
 export const FULL_UNIT_GRID_MAX_EDGE = 16

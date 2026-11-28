@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { CATALOGUE_MAX_EDGE, gridDensityForEdge } from './cubeLayout'
+import { CATALOGUE_MAX_EDGE } from '../../domain/taxicab'
+import { gridDensityForEdge } from './cubeLayout'
 import { buildSurfaceGridGeometry } from './surfaceGrid'
 
 describe('buildSurfaceGridGeometry', () => {

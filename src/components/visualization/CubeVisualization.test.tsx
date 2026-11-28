@@ -1,11 +1,11 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { cube } from '../../domain/taxicab'
+import { CATALOGUE_MAX_EDGE, cube } from '../../domain/taxicab'
 import { isWebGLAvailable } from './webglSupport'
 import { CubeVisualization } from './CubeVisualization'
 
 const pair = { a: 1, b: 12 } as const
-const largePair = { a: 8, b: 53 } as const
+const largePair = { a: 8, b: CATALOGUE_MAX_EDGE } as const
 
 vi.mock('./webglSupport', () => ({
   isWebGLAvailable: vi.fn(() => true),
@@ -75,10 +75,14 @@ describe('CubeVisualization', () => {
     expect(await screen.findByRole('note')).toHaveTextContent(
       /no longer marks every individual unit cube/i,
     )
-    expect(screen.getByText('53 × 53 × 53')).toBeInTheDocument()
     expect(
       screen.getByText(
-        `${cube(53).toLocaleString('en-US')} units³`,
+        `${CATALOGUE_MAX_EDGE} × ${CATALOGUE_MAX_EDGE} × ${CATALOGUE_MAX_EDGE}`,
+      ),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        `${cube(CATALOGUE_MAX_EDGE).toLocaleString('en-US')} units³`,
       ),
     ).toBeInTheDocument()
   })

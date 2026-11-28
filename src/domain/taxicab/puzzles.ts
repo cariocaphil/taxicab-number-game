@@ -122,6 +122,13 @@ export const TAXICAB_PUZZLES: readonly TaxicabPuzzle[] = [
   },
 ] as const
 
+/** Largest cube edge length appearing in TAXICAB_PUZZLES representations. */
+export const CATALOGUE_MAX_EDGE = Math.max(
+  ...TAXICAB_PUZZLES.flatMap((puzzle) =>
+    puzzle.representations.flatMap(({ a, b }) => [a, b]),
+  ),
+)
+
 export function getPuzzleById(id: string): TaxicabPuzzle | undefined {
   return TAXICAB_PUZZLES.find((puzzle) => puzzle.id === id)
 }

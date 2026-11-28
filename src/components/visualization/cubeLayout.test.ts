@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
+import { CATALOGUE_MAX_EDGE } from '../../domain/taxicab'
 import {
-  CATALOGUE_MAX_EDGE,
   FULL_UNIT_GRID_MAX_EDGE,
   MAX_SIMPLIFIED_GRID_SEGMENTS,
   cameraFramingForPair,
@@ -25,7 +25,7 @@ describe('gridDensityForEdge', () => {
     })
   })
 
-  it('simplifies the surface grid for large edges including catalogue max 53', () => {
+  it('simplifies the surface grid for large edges including catalogue max', () => {
     const density = gridDensityForEdge(CATALOGUE_MAX_EDGE)
     expect(density.isSimplified).toBe(true)
     expect(density.segments).toBe(MAX_SIMPLIFIED_GRID_SEGMENTS)

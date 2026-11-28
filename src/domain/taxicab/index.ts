@@ -5,7 +5,7 @@ export type {
   TaxicabPuzzle,
 } from './types'
 export { cube, findCubePairs, sumOfCubes } from './math'
-export { getPuzzleById, TAXICAB_PUZZLES } from './puzzles'
+export { CATALOGUE_MAX_EDGE, getPuzzleById, TAXICAB_PUZZLES } from './puzzles'
 export { validatePuzzle } from './validation'
 export type {
   GenerateTaxicabRoundOptions,
