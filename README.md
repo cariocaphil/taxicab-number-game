@@ -97,8 +97,10 @@ Visualization components live under `src/components/visualization/`:
 - `UnitCubeBlock` renders one solid cube with a surface grid (not `n³` voxel meshes).
 - `CubeScene.tsx` owns lights, blocks, isometric framing, `resetToken` camera reset, and ExploreControls only while exploring.
 - `CubePairVisualization` (named export only) hosts a demand-framed R3F `Canvas`. The parent `lazy()` remaps the named export to `default` for code-splitting. CSS uses `width`/`height: 100% !important` on the canvas so it fills the aspect-ratio host despite R3F’s inline pixel sizing; revisit that override when upgrading `@react-three/fiber`.
-- `CubeVisualizationFallback.tsx` is the static SVG substitute plus a fixed availability message (no duplicate math labels).
-- Parent `CubeVisualization` is the composition root: it gates WebGL vs fallback UI and owns Explore / Reset controls. Educational copy lives in `CubeVisualizationCaption`. `SceneErrorBoundary` (sibling module) only notifies the parent on render/lazy failures — it does not render the fallback itself. Canvas init errors and `webglcontextlost` likewise switch the parent to the static fallback.
+- `CubeVisualizationFallback.tsx` is the static SVG substitute (no duplicate math labels). It shows a default WebGL-unavailable message; that message is omitted for quiet demotion when another representation owns the live canvas. Hatch pattern ids are document-unique via `useId()`.
+- `CubeVisualizationCaption.tsx` owns educational dimension/volume copy and the simplified-grid disclaimer.
+- `SceneErrorBoundary.tsx` only notifies the parent on render/lazy failures — it does not render the fallback itself.
+- Parent `CubeVisualization` is the composition root: it gates WebGL vs fallback via `enableWebGL` / failure state, owns Explore / Reset controls, and renders the fallback UI. Canvas init errors and `webglcontextlost` likewise switch the parent to the static fallback.
 - Progressive revelation still uses only `revealedCount` from `useTaxicabGame`; visualizations appear iff a representation slot receives a non-null `CubePair`. `enableWebGL` is true only for the most recently revealed slot so two canvases never run concurrently.
 
 **WebGL:** Required for the interactive scene. Without it, or after failure/context loss, the game remains fully playable with equations, labels, and the static diagram fallback.
@@ -131,7 +133,7 @@ pnpm test
 pnpm test:watch
 ```
 
-Domain unit tests run under Vitest’s node environment and do not require a browser. Visualization layout math is tested without a real WebGL context; Canvas rendering is mocked at the module boundary.
+Domain unit tests run under Vitest’s node environment and do not require a browser; they stay free of visualization imports. Visualization layout math is tested without a real WebGL context; Canvas rendering is mocked at the module boundary. Shared helpers in `cubeVisualizationAssertions.ts` cover math-label and fallback assertions across the visualization suites.
 
 ### Production build
 
