@@ -1,0 +1,212 @@
+/* —— Cube visualization —— */
+
+.cube-viz {
+  margin: 0;
+  width: min(100%, 36rem);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  text-align: left;
+}
+
+.cube-viz__caption {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.cube-viz__dimensions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-sm);
+}
+
+.cube-viz__dimension {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  column-gap: var(--space-xs);
+  row-gap: 0.15rem;
+  align-items: start;
+  padding: var(--space-sm);
+  background: var(--color-surface-elevated);
+  border: 2px solid rgba(32, 33, 36, 0.12);
+  border-radius: var(--radius-sm);
+}
+
+.cube-viz__dimension--primary {
+  border-left: 4px solid var(--cube-primary-face);
+}
+
+.cube-viz__dimension--secondary {
+  border-left: 4px solid var(--cube-secondary-face);
+}
+
+.cube-viz__swatch {
+  grid-row: 1 / span 2;
+  width: 0.85rem;
+  height: 0.85rem;
+  margin-top: 0.2rem;
+  border-radius: 0.15rem;
+  border: 1px solid rgba(32, 33, 36, 0.35);
+}
+
+.cube-viz__dimension--primary .cube-viz__swatch {
+  background: repeating-linear-gradient(
+    0deg,
+    var(--cube-primary-face),
+    var(--cube-primary-face) 2px,
+    var(--cube-primary-hatch) 2px,
+    var(--cube-primary-hatch) 4px
+  );
+}
+
+.cube-viz__dimension--secondary .cube-viz__swatch {
+  background: repeating-linear-gradient(
+    45deg,
+    var(--cube-secondary-face),
+    var(--cube-secondary-face) 2px,
+    var(--cube-secondary-hatch) 2px,
+    var(--cube-secondary-hatch) 4px
+  );
+}
+
+.cube-viz__size,
+.cube-viz__volume {
+  margin: 0;
+  font-family: var(--font-plate);
+}
+
+.cube-viz__size {
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.cube-viz__volume {
+  font-size: 0.85rem;
+  color: var(--color-muted);
+}
+
+.cube-viz__explanation,
+.cube-viz__disclaimer,
+.cube-viz__hint,
+.cube-viz__fallback-message {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--color-muted);
+}
+
+.cube-viz__disclaimer {
+  padding: var(--space-xs) var(--space-sm);
+  border-left: 3px solid rgba(32, 33, 36, 0.25);
+  color: var(--color-ink);
+}
+
+.cube-viz__canvas-host,
+.cube-viz__fallback,
+.cube-viz__loading {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  min-height: 14rem;
+  border-radius: var(--radius-sm);
+  border: 2px solid rgba(32, 33, 36, 0.12);
+  background:
+    linear-gradient(
+      160deg,
+      rgba(245, 197, 24, 0.08),
+      transparent 55%
+    ),
+    var(--color-surface-elevated);
+  overflow: hidden;
+}
+
+/*
+ * R3F Canvas writes inline pixel width/height on the <canvas>. Those beat
+ * normal stylesheet % rules, so !important keeps the canvas filling this
+ * aspect-ratio host. Revisit on @react-three/fiber upgrades if a supported
+ * sizing API makes the override unnecessary.
+ */
+.cube-viz__canvas-host canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  touch-action: auto;
+}
+
+.cube-viz__canvas-host--exploring canvas {
+  /* OrbitControls sets touch-action:none while exploring; intentional opt-in. */
+  cursor: grab;
+}
+
+.cube-viz__loading {
+  display: grid;
+  place-items: center;
+  color: var(--color-muted);
+  font-size: 0.95rem;
+}
+
+.cube-viz__fallback {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  padding: var(--space-sm);
+}
+
+.cube-viz__fallback-svg {
+  width: min(100%, 20rem);
+  height: auto;
+}
+
+.cube-viz__controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+.cube-viz__button {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  background: var(--color-taxi-yellow);
+  color: var(--color-charcoal);
+  border: 2px solid var(--color-plate-border);
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    opacity var(--transition-fast);
+}
+
+.cube-viz__button:hover:not(:disabled) {
+  background: #e6b800;
+}
+
+.cube-viz__button--secondary {
+  background: var(--color-surface-elevated);
+  border-color: rgba(32, 33, 36, 0.25);
+}
+
+.cube-viz__button--secondary:hover:not(:disabled) {
+  border-color: var(--color-charcoal);
+  background: var(--color-surface-elevated);
+}
+
+.cube-viz__button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cube-viz__button:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+@media (max-width: 40rem) {
+  .cube-viz__dimensions {
+    grid-template-columns: 1fr;
+  }
+}

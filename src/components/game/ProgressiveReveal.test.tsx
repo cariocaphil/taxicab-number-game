@@ -3,6 +3,23 @@ import { describe, expect, it, vi } from 'vitest'
 import { getPuzzleById } from '../../domain/taxicab'
 import { ProgressiveReveal } from './ProgressiveReveal'
 
+vi.mock('../visualization/CubeVisualization', () => ({
+  CubeVisualization: ({
+    pair,
+    enableWebGL = true,
+  }: {
+    readonly pair: { readonly a: number; readonly b: number }
+    readonly enableWebGL?: boolean
+  }) => (
+    <div
+      data-testid="cube-visualization"
+      data-enable-webgl={String(enableWebGL)}
+    >
+      Visualization for {pair.a} and {pair.b}
+    </div>
+  ),
+}))
+
 const puzzle = getPuzzleById('1729')
 const puzzle4104 = getPuzzleById('4104')
 
@@ -34,6 +51,8 @@ describe('ProgressiveReveal', () => {
       expect(equationAccessibleName(index)).not.toMatch(/\d+ cubed plus \d+/i)
     }
 
+    expect(screen.queryAllByTestId('cube-visualization')).toHaveLength(0)
+
     expect(
       screen.getByRole('button', { name: 'Reveal first representation' }),
     ).toBeEnabled()
@@ -54,6 +73,11 @@ describe('ProgressiveReveal', () => {
       `${first.a} cubed plus ${first.b} cubed equals ${puzzle.target}`,
     )
     expect(equationAccessibleName(1)).toMatch(/unknown cubed/i)
+    const firstViz = screen.getByTestId('cube-visualization')
+    expect(firstViz).toHaveAttribute('data-enable-webgl', 'true')
+    expect(
+      screen.getByText(`Visualization for ${first.a} and ${first.b}`),
+    ).toBeInTheDocument()
     expect(
       screen.getByRole('button', { name: 'Reveal next representation' }),
     ).toBeEnabled()
@@ -68,6 +92,10 @@ describe('ProgressiveReveal', () => {
     expect(equationAccessibleName(1)).toBe(
       `${second.a} cubed plus ${second.b} cubed equals ${puzzle.target}`,
     )
+    const visualizations = screen.getAllByTestId('cube-visualization')
+    expect(visualizations).toHaveLength(2)
+    expect(visualizations[0]).toHaveAttribute('data-enable-webgl', 'false')
+    expect(visualizations[1]).toHaveAttribute('data-enable-webgl', 'true')
   })
 
   it('shows completion and disables further reveals', () => {
@@ -119,18 +147,34 @@ describe('ProgressiveReveal', () => {
     fireEvent.click(
       screen.getByRole('button', { name: 'Reveal next representation' }),
     )
+    expect(screen.getAllByTestId('cube-visualization')).toHaveLength(2)
+
     fireEvent.click(screen.getByRole('button', { name: 'Restart' }))
 
     for (let index = 0; index < puzzle.representations.length; index += 1) {
       expect(equationAccessibleName(index)).toMatch(/unknown cubed/i)
     }
 
+    expect(screen.queryAllByTestId('cube-visualization')).toHaveLength(0)
     expect(
       screen.queryByText(/congratulations/i),
     ).not.toBeInTheDocument()
     expect(
       screen.getByRole('button', { name: 'Reveal first representation' }),
     ).toBeEnabled()
+  })
+
+  it('shows visualizations for non-1729 puzzle representations', () => {
+    render(<ProgressiveReveal puzzle={puzzle4104} onNewRound={() => {}} />)
+    const [first] = puzzle4104.representations
+
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Reveal first representation' }),
+    )
+
+    expect(
+      screen.getByText(`Visualization for ${first.a} and ${first.b}`),
+    ).toBeInTheDocument()
   })
 
   it('keeps a polite live region mounted before the first reveal', () => {

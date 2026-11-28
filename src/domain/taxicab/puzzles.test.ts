@@ -1,7 +1,7 @@
 /** @vitest-environment node */
 import { describe, expect, it } from 'vitest'
 import { findCubePairs } from './math'
-import { getPuzzleById, TAXICAB_PUZZLES } from './puzzles'
+import { CATALOGUE_MAX_EDGE, getPuzzleById, TAXICAB_PUZZLES } from './puzzles'
 import { validatePuzzle } from './validation'
 
 function digitLength(n: number): number {
@@ -43,5 +43,17 @@ describe('TAXICAB_PUZZLES catalogue', () => {
       expect(puzzle?.id).toBe(id)
       expect(puzzle?.target).toBe(Number(id))
     }
+  })
+
+  it('derives CATALOGUE_MAX_EDGE from representation edges', () => {
+    const maxEdge = Math.max(
+      ...TAXICAB_PUZZLES.flatMap((puzzle) =>
+        puzzle.representations.flatMap(({ a, b }) => [a, b]),
+      ),
+    )
+
+    expect(Number.isInteger(CATALOGUE_MAX_EDGE)).toBe(true)
+    expect(CATALOGUE_MAX_EDGE).toBeGreaterThan(0)
+    expect(CATALOGUE_MAX_EDGE).toBe(maxEdge)
   })
 })
