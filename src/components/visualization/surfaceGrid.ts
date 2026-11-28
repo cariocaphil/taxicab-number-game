@@ -8,6 +8,10 @@ export function buildSurfaceGridGeometry(
   edge: number,
   segments: number,
 ): BufferGeometry {
+  if (!Number.isInteger(segments) || segments < 1) {
+    throw new Error('segments must be a positive integer')
+  }
+
   const half = edge / 2
   const step = edge / segments
   const positions: number[] = []

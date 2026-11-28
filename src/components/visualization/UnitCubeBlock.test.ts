@@ -27,4 +27,10 @@ describe('buildSurfaceGridGeometry', () => {
     expect(position.count).toBeLessThan(50_000)
     geometry.dispose()
   })
+
+  it('rejects non-positive segment counts', () => {
+    expect(() => buildSurfaceGridGeometry(3, 0)).toThrow(/positive integer/)
+    expect(() => buildSurfaceGridGeometry(3, -1)).toThrow(/positive integer/)
+    expect(() => buildSurfaceGridGeometry(3, 1.5)).toThrow(/positive integer/)
+  })
 })
