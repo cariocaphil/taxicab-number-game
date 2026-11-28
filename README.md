@@ -93,7 +93,7 @@ Visualization components live under `src/components/visualization/`:
 
 - Pure helpers in `cubeLayout.ts` / `surfaceGrid.ts` compute placement, camera framing, and surface-grid density without WebGL. Edges ≤ 16 use a full unit surface grid; larger edges use up to 12 segments.
 - `cubeTheme.ts` holds shared `CUBE_VARIANT_THEME` for WebGL materials, caption CSS variables, and the static fallback SVG.
-- `webglSupport.ts` exposes `isWebGLAvailable()` (mockable in tests).
+- `webglSupport.ts` exposes `isWebGLAvailable()` (mockable in tests); the capability probe is cached at module scope so repeated mounts do not allocate throwaway contexts.
 - `UnitCubeBlock` renders one solid cube with a surface grid (not `n³` voxel meshes).
 - `CubeScene.tsx` owns lights, blocks, isometric framing, `resetToken` camera reset, and ExploreControls only while exploring.
 - `CubePairVisualization` (named export only) hosts a demand-framed R3F `Canvas`. The parent `lazy()` remaps the named export to `default` for code-splitting. CSS uses `width`/`height: 100% !important` on the canvas so it fills the aspect-ratio host despite R3F’s inline pixel sizing; revisit that override when upgrading `@react-three/fiber`.
