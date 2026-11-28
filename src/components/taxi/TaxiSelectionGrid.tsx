@@ -11,15 +11,26 @@ interface TaxiSelectionGridProps {
   readonly onContinue: () => void
 }
 
+function latestIncorrect(
+  selections: ReadonlySet<number>,
+): number | undefined {
+  let latest: number | undefined
+  for (const value of selections) {
+    latest = value
+  }
+  return latest
+}
+
 function feedbackMessage(
   correctSelected: boolean,
-  incorrectCount: number,
+  incorrectSelections: ReadonlySet<number>,
 ): string {
   if (correctSelected) {
     return 'Well spotted! Continue to uncover its mathematical secret.'
   }
-  if (incorrectCount > 0) {
-    return 'Not quite. Try another taxi!'
+  const plate = latestIncorrect(incorrectSelections)
+  if (plate !== undefined) {
+    return `Not quite. ${plate} is not the taxicab number. Try another taxi!`
   }
   return ''
 }
@@ -91,7 +102,7 @@ export function TaxiSelectionGrid({
         aria-live="polite"
         aria-atomic="true"
       >
-        {feedbackMessage(correctSelected, incorrectSelections.size)}
+        {feedbackMessage(correctSelected, incorrectSelections)}
       </p>
 
       {correctSelected ? (

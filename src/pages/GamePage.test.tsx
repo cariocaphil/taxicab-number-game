@@ -65,7 +65,11 @@ describe('GamePage', () => {
     })
     fireEvent.click(wrong)
 
-    expect(screen.getByText(/Not quite\. Try another taxi!/i)).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        /Not quite\. 1234 is not the taxicab number\. Try another taxi!/i,
+      ),
+    ).toBeInTheDocument()
     expect(
       screen.getByRole('button', {
         name: 'Taxi with license plate 1234, Incorrect',
@@ -77,7 +81,22 @@ describe('GamePage', () => {
         name: 'Taxi with license plate 1234, Incorrect',
       }),
     )
-    expect(screen.getByText(/Not quite\. Try another taxi!/i)).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        /Not quite\. 1234 is not the taxicab number\. Try another taxi!/i,
+      ),
+    ).toBeInTheDocument()
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Taxi with license plate 5678',
+      }),
+    )
+    expect(
+      screen.getByText(
+        /Not quite\. 5678 is not the taxicab number\. Try another taxi!/i,
+      ),
+    ).toBeInTheDocument()
   })
 
   it('locks all taxis after a correct selection and unlocks reveal via Continue', () => {
