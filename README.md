@@ -30,6 +30,16 @@ Continue unlocks the progressive reveal experience: the discovered number appear
 
 Surrounding chrome (such as the header brand) does not reveal the current target.
 
+### Interactive 3D cube visualization
+
+When a representation is revealed, the game shows an interactive 3D visualization of its two cubes as surface-segmented solids with mathematically accurate relative proportions. The goal is educational: players can see that two different combinations of cube volumes produce the same total (for example `1³ + 12³ = 1729` and `9³ + 10³ = 1729`).
+
+- Dimension and volume labels, plus a short explanation, are always shown as text so the mathematics is understandable without using the 3D scene.
+- For large catalogue edges the surface grid is simplified; the UI states clearly that the grid no longer marks every unit cube while proportions and numeric labels remain exact.
+- **Explore 3D** is an explicit opt-in: OrbitControls stay off by default so mobile page scrolling is not blocked. After exploring, **Done exploring** restores normal scrolling. **Reset camera** restores the initial isometric framing.
+- Three.js is lazy-loaded only when a visualization mounts, so the selection phase does not pay the WebGL bundle cost up front.
+- If WebGL is unavailable, initialization fails, the lazy chunk fails, or the context is lost, a static diagram substitute is shown. Math labels are not duplicated into that fallback.
+
 ## Mathematical domain
 
 The pure TypeScript domain lives in `src/domain/taxicab/` and has **no React dependency**.
@@ -48,7 +58,7 @@ The pure TypeScript domain lives in `src/domain/taxicab/` and has **no React dep
 
 ### Puzzle catalogue
 
-`TAXICAB_PUZZLES` is a local, deterministic curated subset of A001235 (≥12 puzzles) covering four-, five-, and six-digit targets. Each entry for this PR has **exactly two** representations, verified against `findCubePairs`. Existing IDs such as `1729` remain stable. There is **no** runtime OEIS fetch.
+`TAXICAB_PUZZLES` is a local, deterministic curated subset of A001235 (≥12 puzzles) covering four-, five-, and six-digit targets. Each entry for this PR has **exactly two** representations, verified against `findCubePairs`. Existing IDs such as `1729` remain stable. There is **no** runtime OEIS fetch. Catalogue cube edges range up to **53**.
 
 ### Round generation strategy
 
@@ -72,6 +82,19 @@ Generation uses **bounded random sampling** (128 attempts) then a **capped seque
 - Vitest
 - React Testing Library
 - Plain CSS with CSS custom properties
+- Three.js with React Three Fiber and Drei (lazy-loaded 3D visualization)
+
+## 3D rendering architecture
+
+Visualization components live under `src/components/visualization/`:
+
+- Pure helpers in `cubeLayout.ts` / `surfaceGrid.ts` compute placement, camera framing, and surface-grid density without WebGL.
+- `UnitCubeBlock` renders one solid cube with a surface grid (not `n³` voxel meshes).
+- `CubePairVisualization` hosts a demand-framed R3F `Canvas`.
+- Parent `CubeVisualization` owns educational copy once, gates WebGL vs fallback, and provides Explore / Reset controls.
+- Progressive revelation still uses only `revealedCount` from `useTaxicabGame`; visualizations appear iff a representation slot receives a non-null `CubePair`.
+
+**WebGL:** Required for the interactive scene. Without it, or after failure/context loss, the game remains fully playable with equations, labels, and the static diagram fallback.
 
 ## Getting started
 
@@ -100,7 +123,7 @@ pnpm typecheck
 pnpm test
 ```
 
-Domain unit tests run under Vitest’s node environment and do not require a browser.
+Domain unit tests run under Vitest’s node environment and do not require a browser. Visualization layout math is tested without a real WebGL context; Canvas rendering is mocked at the module boundary.
 
 ### Production build
 
@@ -120,6 +143,7 @@ pnpm preview
 - **PR #2** — Taxicab Number Domain Model & Mathematical Engine
 - **PR #3** — Interactive Taxicab Number Game (progressive reveal)
 - **PR #4** — Spot the Taxicab Number (A001235 selection + dynamic reveal)
+- **PR #5** — Interactive 3D Cube Visualization
 
 ## Roadmap (provisional)
 
@@ -127,8 +151,8 @@ pnpm preview
 - **PR #2** — Taxicab Number Domain Model
 - **PR #3** — Interactive Taxicab Number Game (progressive reveal)
 - **PR #4** — Spot the Taxicab Number (mixed-digit discovery + dynamic reveal)
-- **PR #5** — Number Discovery Game (player guesses)
-- **PR #6** — Interactive 3D Cube Visualization
+- **PR #5** — Interactive 3D Cube Visualization
+- **PR #6** — Number Discovery Game (player guesses)
 
 ## License
 

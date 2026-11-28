@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import type { TaxicabPuzzle } from '../../domain/taxicab'
 import { useTaxicabGame } from '../../hooks/useTaxicabGame'
+import { CubeVisualization } from '../visualization/CubeVisualization'
 import { CubeEquation } from './CubeEquation'
 import { GameCompletion } from './GameCompletion'
 import { RevealControls } from './RevealControls'
@@ -61,13 +62,18 @@ export function ProgressiveReveal({
       </p>
 
       <div className="game-page__equations">
-        {puzzle.representations.map((pair, index) => (
-          <CubeEquation
-            key={`${pair.a}-${pair.b}`}
-            pair={index < revealedCount ? pair : null}
-            target={puzzle.target}
-          />
-        ))}
+        {puzzle.representations.map((pair, index) => {
+          const revealed = index < revealedCount ? pair : null
+          return (
+            <div
+              key={`${pair.a}-${pair.b}`}
+              className="game-page__representation"
+            >
+              <CubeEquation pair={revealed} target={puzzle.target} />
+              {revealed ? <CubeVisualization pair={revealed} /> : null}
+            </div>
+          )
+        })}
       </div>
 
       <div
