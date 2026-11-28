@@ -31,8 +31,6 @@ interface CubeVisualizationProps {
 }
 
 interface SceneErrorBoundaryProps {
-  readonly a: number
-  readonly b: number
   readonly onError: () => void
   readonly children: ReactNode
 }
@@ -41,6 +39,10 @@ interface SceneErrorBoundaryState {
   readonly hasError: boolean
 }
 
+/**
+ * Notifies the parent on failure only. The parent owns fallback UI so Explore
+ * controls and the static diagram stay in one place (no dual fallback path).
+ */
 class SceneErrorBoundary extends Component<
   SceneErrorBoundaryProps,
   SceneErrorBoundaryState
@@ -57,9 +59,7 @@ class SceneErrorBoundary extends Component<
 
   public render(): ReactNode {
     if (this.state.hasError) {
-      return (
-        <CubeVisualizationFallback a={this.props.a} b={this.props.b} />
-      )
+      return null
     }
     return this.props.children
   }
@@ -169,11 +169,7 @@ export function CubeVisualization({
       </figcaption>
 
       {showWebGL ? (
-        <SceneErrorBoundary
-          a={pair.a}
-          b={pair.b}
-          onError={switchToFallback}
-        >
+        <SceneErrorBoundary onError={switchToFallback}>
           <Suspense
             fallback={
               <div className="cube-viz__loading" role="status">

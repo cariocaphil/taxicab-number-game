@@ -98,7 +98,7 @@ Visualization components live under `src/components/visualization/`:
 - `CubeScene.tsx` owns lights, blocks, isometric framing, `resetToken` camera reset, and ExploreControls only while exploring.
 - `CubePairVisualization` (named export only) hosts a demand-framed R3F `Canvas`. The parent `lazy()` remaps the named export to `default` for code-splitting. CSS uses `width`/`height: 100% !important` on the canvas so it fills the aspect-ratio host despite R3F’s inline pixel sizing; revisit that override when upgrading `@react-three/fiber`.
 - `CubeVisualizationFallback.tsx` is the static SVG substitute plus a fixed availability message (no duplicate math labels).
-- Parent `CubeVisualization` owns educational copy once, gates WebGL vs fallback, and provides Explore / Reset controls. Resilience: Suspense shows a loading state; `SceneErrorBoundary` catches render/lazy failures; Canvas init errors and `webglcontextlost` switch to the static fallback.
+- Parent `CubeVisualization` owns educational copy once, gates WebGL vs fallback UI, and provides Explore / Reset controls. `SceneErrorBoundary` only notifies the parent on render/lazy failures (it does not render the fallback itself). Canvas init errors and `webglcontextlost` likewise switch the parent to the static fallback.
 - Progressive revelation still uses only `revealedCount` from `useTaxicabGame`; visualizations appear iff a representation slot receives a non-null `CubePair`. `enableWebGL` is true only for the most recently revealed slot so two canvases never run concurrently.
 
 **WebGL:** Required for the interactive scene. Without it, or after failure/context loss, the game remains fully playable with equations, labels, and the static diagram fallback.

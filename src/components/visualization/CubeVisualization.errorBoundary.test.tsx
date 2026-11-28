@@ -28,7 +28,7 @@ describe('CubeVisualization error boundary fallback', () => {
     consoleErrorSpy.mockRestore()
   })
 
-  it('shows the static fallback immediately when the 3D scene throws', async () => {
+  it('shows a single parent-owned fallback when the 3D scene throws', async () => {
     render(<CubeVisualization pair={pair} />)
 
     await waitFor(() => {
@@ -37,6 +37,10 @@ describe('CubeVisualization error boundary fallback', () => {
       ).toHaveLength(1)
     })
 
+    expect(screen.getByTestId('cube-visualization')).toHaveAttribute(
+      'data-webgl',
+      'false',
+    )
     expect(screen.getByText('1 × 1 × 1')).toBeInTheDocument()
     expect(screen.getByText('12 × 12 × 12')).toBeInTheDocument()
     expect(screen.getByText('1 unit³')).toBeInTheDocument()
@@ -47,27 +51,10 @@ describe('CubeVisualization error boundary fallback', () => {
       screen.getByText(/A cube with an edge length of 12 contains/i),
     ).toBeInTheDocument()
     expect(
+      screen.getByText(/Interactive 3D view unavailable/i),
+    ).toBeInTheDocument()
+    expect(
       screen.queryByRole('button', { name: 'Explore 3D' }),
     ).toBeNull()
-  })
-
-  it('does not render fallback content twice after the parent switches sceneMode', async () => {
-    render(<CubeVisualization pair={pair} />)
-
-    await waitFor(() => {
-      expect(
-        screen.getAllByRole('img', { name: /Static diagram of cubes/i }),
-      ).toHaveLength(1)
-    })
-
-    // Allow switchToFallback state update to settle; still a single fallback.
-    await waitFor(() => {
-      expect(
-        screen.queryByRole('button', { name: 'Explore 3D' }),
-      ).toBeNull()
-      expect(
-        screen.getAllByRole('img', { name: /Static diagram of cubes/i }),
-      ).toHaveLength(1)
-    })
   })
 })
