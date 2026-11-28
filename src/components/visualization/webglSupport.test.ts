@@ -26,7 +26,9 @@ describe('isWebGLAvailable', () => {
   })
 
   it('re-probes after the availability cache is reset', () => {
-    const getContext = vi.fn(() => null)
+    const getContext = vi.fn<(...args: unknown[]) => object | null>(
+      () => null,
+    )
     vi.spyOn(document, 'createElement').mockImplementation(
       () =>
         ({
@@ -36,7 +38,7 @@ describe('isWebGLAvailable', () => {
 
     expect(isWebGLAvailable()).toBe(false)
     resetWebGLAvailabilityCache()
-    getContext.mockReturnValue({} as unknown as RenderingContext)
+    getContext.mockReturnValue({})
     expect(isWebGLAvailable()).toBe(true)
     expect(document.createElement).toHaveBeenCalledTimes(2)
   })
