@@ -1,3 +1,4 @@
+import { useId } from 'react'
 import { CUBE_VARIANT_THEME } from './cubeTheme'
 
 const FALLBACK_MESSAGE =
@@ -22,6 +23,7 @@ export function CubeVisualizationFallback({
   b,
   message = FALLBACK_MESSAGE,
 }: CubeVisualizationFallbackProps) {
+  const instanceId = useId().replace(/:/g, '')
   const maxEdge = Math.max(a, b)
   const scale = 7.5 / maxEdge
   const primary = CUBE_VARIANT_THEME.primary
@@ -46,6 +48,7 @@ export function CubeVisualizationFallback({
           fill={primary.face}
           stroke={primary.edge}
           hatch="primary"
+          patternId={`cube-hatch-${instanceId}-primary`}
         />
         <IsometricCube
           edge={b}
@@ -55,6 +58,7 @@ export function CubeVisualizationFallback({
           fill={secondary.face}
           stroke={secondary.edge}
           hatch="secondary"
+          patternId={`cube-hatch-${instanceId}-secondary`}
         />
       </svg>
       {message !== null ? (
@@ -72,6 +76,7 @@ interface IsometricCubeProps {
   readonly fill: string
   readonly stroke: string
   readonly hatch: 'primary' | 'secondary'
+  readonly patternId: string
 }
 
 function IsometricCube({
@@ -82,6 +87,7 @@ function IsometricCube({
   fill,
   stroke,
   hatch,
+  patternId,
 }: IsometricCubeProps) {
   const size = edge * scale
   const dx = size * 0.55
@@ -105,8 +111,6 @@ function IsometricCube({
     [originX + size + dx, originY - size - dy],
     [originX + size, originY - size],
   ] as const
-
-  const patternId = `cube-hatch-${hatch}-${edge}`
 
   return (
     <g>
