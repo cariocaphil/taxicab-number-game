@@ -90,7 +90,7 @@ Visualization components live under `src/components/visualization/`:
 
 - Pure helpers in `cubeLayout.ts` / `surfaceGrid.ts` compute placement, camera framing, and surface-grid density without WebGL.
 - `UnitCubeBlock` renders one solid cube with a surface grid (not `n³` voxel meshes).
-- `CubePairVisualization` hosts a demand-framed R3F `Canvas`.
+- `CubePairVisualization` hosts a demand-framed R3F `Canvas`. CSS uses `width`/`height: 100% !important` on the canvas so it fills the aspect-ratio host despite R3F’s inline pixel sizing; revisit that override when upgrading `@react-three/fiber`.
 - Parent `CubeVisualization` owns educational copy once, gates WebGL vs fallback, and provides Explore / Reset controls.
 - Progressive revelation still uses only `revealedCount` from `useTaxicabGame`; visualizations appear iff a representation slot receives a non-null `CubePair`.
 

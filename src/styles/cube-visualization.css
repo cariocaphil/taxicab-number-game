@@ -120,6 +120,12 @@
   overflow: hidden;
 }
 
+/*
+ * R3F Canvas writes inline pixel width/height on the <canvas>. Those beat
+ * normal stylesheet % rules, so !important keeps the canvas filling this
+ * aspect-ratio host. Revisit on @react-three/fiber upgrades if a supported
+ * sizing API makes the override unnecessary.
+ */
 .cube-viz__canvas-host canvas {
   display: block;
   width: 100% !important;
