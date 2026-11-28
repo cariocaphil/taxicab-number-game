@@ -14,11 +14,16 @@ vi.mock('./webglSupport', () => ({
 vi.mock('./CubePairVisualization', () => ({
   CubePairVisualization: ({
     exploring,
+    onContextLost,
   }: {
     readonly exploring: boolean
+    readonly onContextLost: () => void
   }) => (
     <div data-testid="mock-webgl-scene" data-exploring={String(exploring)}>
       Mock WebGL scene
+      <button type="button" onClick={onContextLost}>
+        Simulate context loss
+      </button>
     </div>
   ),
 }))
@@ -96,6 +101,35 @@ describe('CubeVisualization', () => {
     expect(screen.getByText('12 × 12 × 12')).toBeInTheDocument()
     expect(
       screen.getByText(/Interactive 3D view unavailable/i),
+    ).toBeInTheDocument()
+    expect(screen.queryByTestId('mock-webgl-scene')).toBeNull()
+    expect(
+      screen.queryByRole('button', { name: 'Explore 3D' }),
+    ).toBeNull()
+  })
+
+  it('keeps mathematical labels visible after a WebGL context-loss fallback', async () => {
+    render(<CubeVisualization pair={pair} />)
+
+    expect(await screen.findByTestId('mock-webgl-scene')).toBeInTheDocument()
+
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Simulate context loss' }),
+    )
+
+    expect(
+      screen.getByRole('img', {
+        name: 'Static diagram of cubes with edges 1 and 12',
+      }),
+    ).toBeInTheDocument()
+    expect(screen.getByText('1 × 1 × 1')).toBeInTheDocument()
+    expect(screen.getByText('12 × 12 × 12')).toBeInTheDocument()
+    expect(screen.getByText('1 unit³')).toBeInTheDocument()
+    expect(
+      screen.getByText(`${cube(12).toLocaleString('en-US')} units³`),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText(/A cube with an edge length of 12 contains/i),
     ).toBeInTheDocument()
     expect(screen.queryByTestId('mock-webgl-scene')).toBeNull()
     expect(

@@ -2,6 +2,7 @@ import {
   Component,
   lazy,
   Suspense,
+  useCallback,
   useEffect,
   useId,
   useState,
@@ -96,10 +97,10 @@ export function CubeVisualization({ pair }: CubeVisualizationProps) {
     }
   }, [])
 
-  const switchToFallback = () => {
+  const switchToFallback = useCallback(() => {
     setExploring(false)
     setSceneMode('fallback')
-  }
+  }, [setExploring, setSceneMode])
 
   return (
     <figure

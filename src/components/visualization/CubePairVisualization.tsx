@@ -23,33 +23,27 @@ export function CubePairVisualization({
   onContextLost,
   onInitError,
 }: CubePairVisualizationProps): ReactElement {
-  const hostRef = useRef<HTMLDivElement>(null)
+  const onContextLostRef = useRef(onContextLost)
+  const onInitErrorRef = useRef(onInitError)
+  const detachContextLostListenerRef = useRef<(() => void) | null>(null)
 
   useEffect(() => {
-    const host = hostRef.current
-    if (host === null) {
-      return
-    }
+    onContextLostRef.current = onContextLost
+  }, [onContextLost])
 
-    const canvas = host.querySelector('canvas')
-    if (canvas === null) {
-      return
-    }
+  useEffect(() => {
+    onInitErrorRef.current = onInitError
+  }, [onInitError])
 
-    const handleContextLost = (event: Event) => {
-      event.preventDefault()
-      onContextLost()
-    }
-
-    canvas.addEventListener('webglcontextlost', handleContextLost)
+  useEffect(() => {
     return () => {
-      canvas.removeEventListener('webglcontextlost', handleContextLost)
+      detachContextLostListenerRef.current?.()
+      detachContextLostListenerRef.current = null
     }
-  }, [onContextLost, pair.a, pair.b])
+  }, [])
 
   return (
     <div
-      ref={hostRef}
       className={
         exploring
           ? 'cube-viz__canvas-host cube-viz__canvas-host--exploring'
@@ -66,8 +60,21 @@ export function CubePairVisualization({
             gl.setClearColor(0x000000, 0)
             // Keep scroll possible until Explore mode mounts OrbitControls.
             gl.domElement.style.touchAction = 'auto'
+
+            detachContextLostListenerRef.current?.()
+
+            const canvas = gl.domElement
+            const handleContextLost = (event: Event) => {
+              event.preventDefault()
+              onContextLostRef.current()
+            }
+
+            canvas.addEventListener('webglcontextlost', handleContextLost)
+            detachContextLostListenerRef.current = () => {
+              canvas.removeEventListener('webglcontextlost', handleContextLost)
+            }
           } catch {
-            onInitError()
+            onInitErrorRef.current()
           }
         }}
       >
