@@ -1,7 +1,17 @@
 import { OrbitControls } from '@react-three/drei'
 import { useThree } from '@react-three/fiber'
-import { useEffect, useLayoutEffect, useRef, type ComponentRef } from 'react'
-import { cameraFramingForPair, layoutCubePair } from './cubeLayout'
+import {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  type ComponentRef,
+} from 'react'
+import {
+  cameraFramingForPair,
+  layoutCubePair,
+  type CameraFraming,
+} from './cubeLayout'
 import { UnitCubeBlock } from './UnitCubeBlock'
 
 type OrbitControlsHandle = ComponentRef<typeof OrbitControls>
@@ -14,9 +24,12 @@ interface CubeSceneProps {
   readonly reducedMotion: boolean
 }
 
-function InitialCamera({ a, b }: { readonly a: number; readonly b: number }) {
+function InitialCamera({
+  framing,
+}: {
+  readonly framing: CameraFraming
+}) {
   const { camera, invalidate } = useThree()
-  const framing = cameraFramingForPair(a, b)
 
   useLayoutEffect(() => {
     camera.position.set(
@@ -27,25 +40,22 @@ function InitialCamera({ a, b }: { readonly a: number; readonly b: number }) {
     camera.lookAt(framing.target.x, framing.target.y, framing.target.z)
     camera.updateProjectionMatrix()
     invalidate()
-  }, [a, b, camera, framing, invalidate])
+  }, [camera, framing, invalidate])
 
   return null
 }
 
 function ExploreControls({
-  a,
-  b,
+  framing,
   resetToken,
   reducedMotion,
 }: {
-  readonly a: number
-  readonly b: number
+  readonly framing: CameraFraming
   readonly resetToken: number
   readonly reducedMotion: boolean
 }) {
   const controlsRef = useRef<OrbitControlsHandle | null>(null)
   const { camera, gl, invalidate } = useThree()
-  const framing = cameraFramingForPair(a, b)
 
   useLayoutEffect(() => {
     const controls = controlsRef.current
@@ -110,7 +120,8 @@ export function CubeScene({
   resetToken,
   reducedMotion,
 }: CubeSceneProps) {
-  const layout = layoutCubePair(a, b)
+  const layout = useMemo(() => layoutCubePair(a, b), [a, b])
+  const framing = useMemo(() => cameraFramingForPair(a, b), [a, b])
 
   return (
     <>
@@ -137,12 +148,11 @@ export function CubeScene({
         variant="secondary"
       />
 
-      <InitialCamera a={a} b={b} />
+      <InitialCamera framing={framing} />
 
       {exploring ? (
         <ExploreControls
-          a={a}
-          b={b}
+          framing={framing}
           resetToken={resetToken}
           reducedMotion={reducedMotion}
         />
