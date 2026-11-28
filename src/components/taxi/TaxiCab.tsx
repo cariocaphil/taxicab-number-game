@@ -1,4 +1,13 @@
-type TaxiCabStatus = 'default' | 'incorrect' | 'correct'
+import { useTranslation } from 'react-i18next'
+
+export const TaxiCabStatus = {
+  Default: 'default',
+  Incorrect: 'incorrect',
+  Correct: 'correct',
+} as const
+
+export type TaxiCabStatus =
+  (typeof TaxiCabStatus)[keyof typeof TaxiCabStatus]
 
 interface TaxiCabProps {
   readonly number: number
@@ -7,32 +16,30 @@ interface TaxiCabProps {
   readonly onSelect: () => void
 }
 
-function statusLabel(status: TaxiCabStatus): string {
-  if (status === 'incorrect') {
-    return 'Incorrect'
-  }
-  if (status === 'correct') {
-    return 'Correct'
-  }
-  return ''
-}
-
-function accessibleName(number: number, status: TaxiCabStatus): string {
-  const base = `Taxi with license plate ${number}`
-  const label = statusLabel(status)
-  return label === '' ? base : `${base}, ${label}`
-}
-
 export function TaxiCab({
   number,
   status,
   disabled,
   onSelect,
 }: TaxiCabProps) {
+  const { t } = useTranslation()
+
+  const statusText =
+    status === TaxiCabStatus.Incorrect
+      ? t('game.statusIncorrect')
+      : status === TaxiCabStatus.Correct
+        ? t('game.statusCorrect')
+        : ''
+
+  const ariaLabel =
+    statusText === ''
+      ? t('game.taxiAriaLabel', { number })
+      : t('game.taxiAriaLabelWithStatus', { number, status: statusText })
+
   const className = [
     'taxi-cab',
-    status === 'incorrect' ? 'taxi-cab--incorrect' : '',
-    status === 'correct' ? 'taxi-cab--correct' : '',
+    status === TaxiCabStatus.Incorrect ? 'taxi-cab--incorrect' : '',
+    status === TaxiCabStatus.Correct ? 'taxi-cab--correct' : '',
   ]
     .filter(Boolean)
     .join(' ')
@@ -43,7 +50,7 @@ export function TaxiCab({
       className={className}
       disabled={disabled}
       onClick={onSelect}
-      aria-label={accessibleName(number, status)}
+      aria-label={ariaLabel}
     >
       <svg
         className="taxi-cab__svg"
@@ -71,7 +78,7 @@ export function TaxiCab({
         {number}
       </span>
       <span className="taxi-cab__status" aria-hidden="true">
-        {statusLabel(status)}
+        {statusText}
       </span>
     </button>
   )

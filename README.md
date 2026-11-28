@@ -86,6 +86,7 @@ Generation uses **bounded random sampling** (128 attempts) then a **capped seque
 - React Testing Library
 - Plain CSS with CSS custom properties
 - Three.js with React Three Fiber and Drei (lazy-loaded 3D visualization)
+- i18next with react-i18next (English-only internationalization foundation)
 
 ## 3D rendering architecture
 
@@ -104,6 +105,16 @@ Visualization components live under `src/components/visualization/`:
 - Progressive revelation still uses only `revealedCount` from `useTaxicabGame`; visualizations appear iff a representation slot receives a non-null `CubePair`. `enableWebGL` is true only for the most recently revealed slot so two canvases never run concurrently.
 
 **WebGL:** Required for the interactive scene. Without it, or after failure/context loss, the game remains fully playable with equations, labels, and the static diagram fallback.
+
+## Internationalization
+
+Player-facing copy is externalized through **i18next** / **react-i18next**. English is the only supported language today; the setup prepares the app for future locales without changing appearance or gameplay.
+
+- Resources live under `src/i18n/`: `locales/en.json` (single default namespace), `index.ts` (init), and `i18next.d.ts` (type-safe keys derived from the English resource).
+- Init runs once from `src/main.tsx` (and Vitest setup) with `lng` / `fallbackLng` / `supportedLngs: ['en']` and `interpolation.escapeValue: false`.
+- Components resolve strings with `useTranslation()` at the presentation boundary. Dynamic values use interpolation; volume/unit copy uses i18next pluralization.
+- Accessibility labels, live-region announcements, visualization controls, captions, and fallback messages are included. The document `lang` attribute remains `en`; title and meta description sync from the English resource after init.
+- The mathematical domain in `src/domain/taxicab/` stays independent of i18n. Visible math notation (equations, dimensions, plate numbers) and developer-facing domain errors are not translated.
 
 ## Getting started
 
@@ -133,7 +144,7 @@ pnpm test
 pnpm test:watch
 ```
 
-Domain unit tests run under Vitest’s node environment and do not require a browser; they stay free of visualization imports. Visualization layout math is tested without a real WebGL context; Canvas rendering is mocked at the module boundary. Shared helpers in `cubeVisualizationAssertions.ts` cover math-label and fallback assertions across the visualization suites.
+Domain unit tests run under Vitest’s node environment and do not require a browser; they stay free of visualization imports. Visualization layout math is tested without a real WebGL context; Canvas rendering is mocked at the module boundary. Shared helpers in `cubeVisualizationAssertions.ts` cover math-label and fallback assertions across the visualization suites. Vitest boots the English i18n resource in `src/test/setup.ts` so component tests assert real English copy rather than mocked translation keys.
 
 ### Production build
 
@@ -154,6 +165,7 @@ pnpm preview
 - **PR #3** — Interactive Taxicab Number Game (progressive reveal)
 - **PR #4** — Spot the Taxicab Number (A001235 selection + dynamic reveal)
 - **PR #5** — Interactive 3D Cube Visualization
+- **PR #6** — Internationalization Foundation (i18n)
 
 ## Roadmap (provisional)
 
@@ -162,7 +174,8 @@ pnpm preview
 - **PR #3** — Interactive Taxicab Number Game (progressive reveal)
 - **PR #4** — Spot the Taxicab Number (mixed-digit discovery + dynamic reveal)
 - **PR #5** — Interactive 3D Cube Visualization
-- **PR #6** — Number Discovery Game (player guesses)
+- **PR #6** — Internationalization Foundation (i18n)
+- **PR #7** — Number Discovery Game (player guesses)
 
 ## License
 

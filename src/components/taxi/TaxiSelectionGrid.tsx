@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
-import { TaxiCab } from './TaxiCab'
+import { useTranslation } from 'react-i18next'
+import { TaxiCab, TaxiCabStatus } from './TaxiCab'
 import '../../styles/taxi-selection.css'
 
 interface TaxiSelectionGridProps {
@@ -21,20 +22,6 @@ function latestIncorrect(
   return latest
 }
 
-function feedbackMessage(
-  correctSelected: boolean,
-  incorrectSelections: ReadonlySet<number>,
-): string {
-  if (correctSelected) {
-    return 'Well spotted! Continue to uncover its mathematical secret.'
-  }
-  const plate = latestIncorrect(incorrectSelections)
-  if (plate !== undefined) {
-    return `Not quite. ${plate} is not the taxicab number. Try another taxi!`
-  }
-  return ''
-}
-
 export function TaxiSelectionGrid({
   candidates,
   target,
@@ -43,6 +30,7 @@ export function TaxiSelectionGrid({
   onSelect,
   onContinue,
 }: TaxiSelectionGridProps) {
+  const { t } = useTranslation()
   const headingRef = useRef<HTMLHeadingElement>(null)
   const continueRef = useRef<HTMLButtonElement>(null)
   const selectionsLocked = correctSelected
@@ -57,6 +45,16 @@ export function TaxiSelectionGrid({
     }
   }, [correctSelected])
 
+  let feedback = ''
+  if (correctSelected) {
+    feedback = t('game.feedbackSuccess')
+  } else {
+    const plate = latestIncorrect(incorrectSelections)
+    if (plate !== undefined) {
+      feedback = t('game.feedbackIncorrect', { plate })
+    }
+  }
+
   return (
     <section className="taxi-selection" aria-labelledby="selection-heading">
       <h1
@@ -65,24 +63,24 @@ export function TaxiSelectionGrid({
         tabIndex={-1}
         ref={headingRef}
       >
-        Spot the Taxicab Number!
+        {t('game.heading')}
       </h1>
 
-      <p className="taxi-selection__prompt">
-        One of these taxis is hiding a mathematical secret. Can you find the
-        number that can be expressed as the sum of two positive cubes in two
-        different ways?
-      </p>
+      <p className="taxi-selection__prompt">{t('game.prompt')}</p>
 
-      <div className="taxi-selection__grid" role="group" aria-label="Taxi fleet">
+      <div
+        className="taxi-selection__grid"
+        role="group"
+        aria-label={t('game.fleetLabel')}
+      >
         {candidates.map((number) => {
           const isIncorrect = incorrectSelections.has(number)
           const isCorrect = correctSelected && number === target
           const status = isCorrect
-            ? 'correct'
+            ? TaxiCabStatus.Correct
             : isIncorrect
-              ? 'incorrect'
-              : 'default'
+              ? TaxiCabStatus.Incorrect
+              : TaxiCabStatus.Default
           const disabled = selectionsLocked || isIncorrect
 
           return (
@@ -102,7 +100,7 @@ export function TaxiSelectionGrid({
         aria-live="polite"
         aria-atomic="true"
       >
-        {feedbackMessage(correctSelected, incorrectSelections)}
+        {feedback}
       </p>
 
       {correctSelected ? (
@@ -112,7 +110,7 @@ export function TaxiSelectionGrid({
           className="taxi-selection__continue"
           onClick={onContinue}
         >
-          Continue
+          {t('game.continue')}
         </button>
       ) : null}
     </section>

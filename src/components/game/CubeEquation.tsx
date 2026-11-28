@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import type { CubePair } from '../../domain/taxicab'
 
 interface CubeEquationProps {
@@ -6,12 +7,14 @@ interface CubeEquationProps {
 }
 
 export function CubeEquation({ pair, target }: CubeEquationProps) {
+  const { t } = useTranslation()
+
   if (pair === null) {
     return (
       <p
         className="cube-equation cube-equation--hidden"
         role="math"
-        aria-label={`Unknown cubed plus unknown cubed equals ${target}`}
+        aria-label={t('progressiveReveal.equationHiddenAriaLabel', { target })}
       >
         <span aria-hidden="true">
           ?<sup>3</sup> + ?<sup>3</sup> = {target}
@@ -24,7 +27,11 @@ export function CubeEquation({ pair, target }: CubeEquationProps) {
     <p
       className="cube-equation cube-equation--revealed"
       role="math"
-      aria-label={`${pair.a} cubed plus ${pair.b} cubed equals ${target}`}
+      aria-label={t('progressiveReveal.equationRevealedAriaLabel', {
+        a: pair.a,
+        b: pair.b,
+        target,
+      })}
     >
       <span aria-hidden="true">
         {pair.a}
