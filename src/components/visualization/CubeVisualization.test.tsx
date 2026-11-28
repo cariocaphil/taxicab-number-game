@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { cube } from '../../domain/taxicab'
 import { isWebGLAvailable } from './webglSupport'
 import { CubeVisualization } from './CubeVisualization'
@@ -14,23 +14,44 @@ vi.mock('./webglSupport', () => ({
 vi.mock('./CubePairVisualization', () => ({
   CubePairVisualization: ({
     exploring,
+    resetToken,
+    reducedMotion,
     onContextLost,
+    onInitError,
   }: {
     readonly exploring: boolean
+    readonly resetToken: number
+    readonly reducedMotion: boolean
     readonly onContextLost: () => void
+    readonly onInitError: () => void
   }) => (
-    <div data-testid="mock-webgl-scene" data-exploring={String(exploring)}>
+    <div
+      data-testid="mock-webgl-scene"
+      data-exploring={String(exploring)}
+      data-reset-token={String(resetToken)}
+      data-reduced-motion={String(reducedMotion)}
+    >
       Mock WebGL scene
       <button type="button" onClick={onContextLost}>
         Simulate context loss
+      </button>
+      <button type="button" onClick={onInitError}>
+        Simulate init error
       </button>
     </div>
   ),
 }))
 
 describe('CubeVisualization', () => {
+  const originalMatchMedia = window.matchMedia
+
   beforeEach(() => {
     vi.mocked(isWebGLAvailable).mockReturnValue(true)
+    window.matchMedia = originalMatchMedia
+  })
+
+  afterEach(() => {
+    window.matchMedia = originalMatchMedia
   })
 
   it('renders dimension and volume labels once from domain cube()', async () => {
@@ -145,5 +166,99 @@ describe('CubeVisualization', () => {
     expect(
       screen.queryByRole('button', { name: 'Explore 3D' }),
     ).toBeNull()
+  })
+
+  it('switches to the static fallback when WebGL initialization fails', async () => {
+    render(<CubeVisualization pair={pair} />)
+
+    expect(await screen.findByTestId('mock-webgl-scene')).toBeInTheDocument()
+
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Simulate init error' }),
+    )
+
+    expect(
+      screen.getByRole('img', {
+        name: 'Static diagram of cubes with edges 1 and 12',
+      }),
+    ).toBeInTheDocument()
+    expect(screen.getByText('1 × 1 × 1')).toBeInTheDocument()
+    expect(screen.getByText('12 × 12 × 12')).toBeInTheDocument()
+    expect(screen.getByText('1 unit³')).toBeInTheDocument()
+    expect(
+      screen.getByText(`${cube(12).toLocaleString('en-US')} units³`),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText(/A cube with an edge length of 12 contains/i),
+    ).toBeInTheDocument()
+    expect(screen.queryByTestId('mock-webgl-scene')).toBeNull()
+    expect(
+      screen.queryByRole('button', { name: 'Explore 3D' }),
+    ).toBeNull()
+  })
+
+  it('increments resetToken when Reset camera is clicked without exploring', async () => {
+    render(<CubeVisualization pair={pair} />)
+
+    const scene = await screen.findByTestId('mock-webgl-scene')
+    expect(scene).toHaveAttribute('data-reset-token', '0')
+    expect(scene).toHaveAttribute('data-exploring', 'false')
+
+    fireEvent.click(screen.getByRole('button', { name: 'Reset camera' }))
+
+    expect(screen.getByTestId('mock-webgl-scene')).toHaveAttribute(
+      'data-reset-token',
+      '1',
+    )
+    expect(screen.getByTestId('mock-webgl-scene')).toHaveAttribute(
+      'data-exploring',
+      'false',
+    )
+  })
+
+  it('increments resetToken when Reset camera is clicked while exploring', async () => {
+    render(<CubeVisualization pair={pair} />)
+
+    expect(await screen.findByTestId('mock-webgl-scene')).toHaveAttribute(
+      'data-reset-token',
+      '0',
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Explore 3D' }))
+    expect(screen.getByTestId('mock-webgl-scene')).toHaveAttribute(
+      'data-exploring',
+      'true',
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Reset camera' }))
+
+    expect(screen.getByTestId('mock-webgl-scene')).toHaveAttribute(
+      'data-reset-token',
+      '1',
+    )
+    expect(screen.getByTestId('mock-webgl-scene')).toHaveAttribute(
+      'data-exploring',
+      'true',
+    )
+  })
+
+  it('passes reducedMotion when prefers-reduced-motion is requested', async () => {
+    window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+      matches: query === '(prefers-reduced-motion: reduce)',
+      media: query,
+      onchange: null,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    }))
+
+    render(<CubeVisualization pair={pair} />)
+
+    expect(await screen.findByTestId('mock-webgl-scene')).toHaveAttribute(
+      'data-reduced-motion',
+      'true',
+    )
   })
 })

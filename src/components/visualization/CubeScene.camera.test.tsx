@@ -9,6 +9,14 @@ const invalidate = vi.fn()
 const controlsTargetSet = vi.fn()
 const controlsUpdate = vi.fn()
 
+let lastControls: {
+  target: { set: typeof controlsTargetSet }
+  minDistance: number
+  maxDistance: number
+  enableDamping: boolean
+  update: typeof controlsUpdate
+} | null = null
+
 const camera = {
   position: { set: positionSet },
   lookAt,
@@ -42,6 +50,7 @@ vi.mock('@react-three/drei', () => ({
       enableDamping: false,
       update: controlsUpdate,
     }
+    lastControls = controls
 
     if (typeof ref === 'function') {
       ref(controls)
@@ -65,6 +74,7 @@ describe('CubeScene camera framing stability', () => {
     invalidate.mockClear()
     controlsTargetSet.mockClear()
     controlsUpdate.mockClear()
+    lastControls = null
   })
 
   it('does not re-apply the initial camera pose on unrelated re-renders', async () => {
@@ -211,5 +221,39 @@ describe('CubeScene camera framing stability', () => {
       framing.position.y,
       framing.position.z,
     )
+  })
+
+  it('disables OrbitControls damping when reducedMotion is true', async () => {
+    const { CubeScene } = await import('./CubeScene')
+
+    render(
+      <CubeScene
+        a={1}
+        b={12}
+        exploring={true}
+        resetToken={0}
+        reducedMotion={true}
+      />,
+    )
+
+    expect(lastControls).not.toBeNull()
+    expect(lastControls!.enableDamping).toBe(false)
+  })
+
+  it('enables OrbitControls damping when reducedMotion is false', async () => {
+    const { CubeScene } = await import('./CubeScene')
+
+    render(
+      <CubeScene
+        a={1}
+        b={12}
+        exploring={true}
+        resetToken={0}
+        reducedMotion={false}
+      />,
+    )
+
+    expect(lastControls).not.toBeNull()
+    expect(lastControls!.enableDamping).toBe(true)
   })
 })
