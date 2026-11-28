@@ -71,7 +71,7 @@ describe('CubeVisualization', () => {
     )
     expect(
       screen.getByRole('button', { name: 'Reset camera' }),
-    ).toBeDisabled()
+    ).toBeEnabled()
 
     fireEvent.click(screen.getByRole('button', { name: 'Explore 3D' }))
 
@@ -81,6 +81,16 @@ describe('CubeVisualization', () => {
     expect(screen.getByTestId('mock-webgl-scene')).toHaveAttribute(
       'data-exploring',
       'true',
+    )
+    expect(
+      screen.getByRole('button', { name: 'Reset camera' }),
+    ).toBeEnabled()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Done exploring' }))
+
+    expect(screen.getByTestId('mock-webgl-scene')).toHaveAttribute(
+      'data-exploring',
+      'false',
     )
     expect(
       screen.getByRole('button', { name: 'Reset camera' }),

@@ -139,6 +139,46 @@ describe('CubeScene camera framing stability', () => {
     )
   })
 
+  it('re-applies the camera pose when resetToken increments without exploring', async () => {
+    const { CubeScene } = await import('./CubeScene')
+    const framing = cameraFramingForPair(1, 12)
+
+    const view = render(
+      <CubeScene
+        a={1}
+        b={12}
+        exploring={false}
+        resetToken={0}
+        reducedMotion={false}
+      />,
+    )
+
+    const callsAfterMount = positionSet.mock.calls.length
+    expect(callsAfterMount).toBe(1)
+
+    view.rerender(
+      <CubeScene
+        a={1}
+        b={12}
+        exploring={false}
+        resetToken={1}
+        reducedMotion={false}
+      />,
+    )
+
+    expect(positionSet.mock.calls.length).toBe(callsAfterMount + 1)
+    expect(positionSet).toHaveBeenLastCalledWith(
+      framing.position.x,
+      framing.position.y,
+      framing.position.z,
+    )
+    expect(lookAt).toHaveBeenLastCalledWith(
+      framing.target.x,
+      framing.target.y,
+      framing.target.z,
+    )
+  })
+
   it('re-applies the camera pose when cube dimensions change', async () => {
     const { CubeScene } = await import('./CubeScene')
     const framing = cameraFramingForPair(9, 10)

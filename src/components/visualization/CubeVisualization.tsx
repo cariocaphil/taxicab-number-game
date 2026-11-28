@@ -194,7 +194,6 @@ export function CubeVisualization({ pair }: CubeVisualizationProps) {
           <button
             type="button"
             className="cube-viz__button cube-viz__button--secondary"
-            disabled={!exploring}
             onClick={() => {
               setResetToken((token) => token + 1)
             }}

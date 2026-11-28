@@ -45,6 +45,37 @@ function InitialCamera({
   return null
 }
 
+/**
+ * Always mounted so Reset camera works after "Done exploring"
+ * (when OrbitControls / ExploreControls are unmounted).
+ */
+function CameraReset({
+  framing,
+  resetToken,
+}: {
+  readonly framing: CameraFraming
+  readonly resetToken: number
+}) {
+  const { camera, invalidate } = useThree()
+
+  useEffect(() => {
+    if (resetToken === 0) {
+      return
+    }
+
+    camera.position.set(
+      framing.position.x,
+      framing.position.y,
+      framing.position.z,
+    )
+    camera.lookAt(framing.target.x, framing.target.y, framing.target.z)
+    camera.updateProjectionMatrix()
+    invalidate()
+  }, [camera, framing, invalidate, resetToken])
+
+  return null
+}
+
 function ExploreControls({
   framing,
   resetToken,
@@ -55,7 +86,7 @@ function ExploreControls({
   readonly reducedMotion: boolean
 }) {
   const controlsRef = useRef<OrbitControlsHandle | null>(null)
-  const { camera, gl, invalidate } = useThree()
+  const { gl, invalidate } = useThree()
 
   useLayoutEffect(() => {
     const controls = controlsRef.current
@@ -77,21 +108,15 @@ function ExploreControls({
     }
 
     const controls = controlsRef.current
-    camera.position.set(
-      framing.position.x,
-      framing.position.y,
-      framing.position.z,
-    )
-    if (controls !== null) {
-      controls.target.set(
-        framing.target.x,
-        framing.target.y,
-        framing.target.z,
-      )
-      controls.update()
+    if (controls === null) {
+      return
     }
+
+    // Camera pose is restored by CameraReset; sync OrbitControls target here.
+    controls.target.set(framing.target.x, framing.target.y, framing.target.z)
+    controls.update()
     invalidate()
-  }, [camera, framing, invalidate, resetToken])
+  }, [framing, invalidate, resetToken])
 
   useEffect(() => {
     return () => {
@@ -149,6 +174,7 @@ export function CubeScene({
       />
 
       <InitialCamera framing={framing} />
+      <CameraReset framing={framing} resetToken={resetToken} />
 
       {exploring ? (
         <ExploreControls
