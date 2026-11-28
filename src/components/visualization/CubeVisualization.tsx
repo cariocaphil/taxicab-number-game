@@ -6,6 +6,7 @@ import {
   useId,
   useState,
 } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { CubePair } from '../../domain/taxicab'
 import { CubeVisualizationCaption } from './CubeVisualizationCaption'
 import { cubeVariantThemeCssVars } from './cubeTheme'
@@ -39,6 +40,7 @@ export function CubeVisualization({
   pair,
   enableWebGL = true,
 }: CubeVisualizationProps) {
+  const { t } = useTranslation()
   const captionId = useId()
 
   const [webglSupported] = useState(() => isWebGLAvailable())
@@ -90,7 +92,7 @@ export function CubeVisualization({
           <Suspense
             fallback={
               <div className="cube-viz__loading" role="status">
-                Loading 3D view…
+                {t('visualization.loading')}
               </div>
             }
           >
@@ -122,7 +124,7 @@ export function CubeVisualization({
               setExploring((current) => !current)
             }}
           >
-            {exploring ? 'Done exploring' : 'Explore 3D'}
+            {exploring ? t('visualization.doneExploring') : t('visualization.explore')}
           </button>
           <button
             type="button"
@@ -131,22 +133,16 @@ export function CubeVisualization({
               setResetToken((token) => token + 1)
             }}
           >
-            Reset camera
+            {t('visualization.resetCamera')}
           </button>
         </div>
       ) : null}
 
       {showWebGL ? (
         exploring ? (
-          <p className="cube-viz__hint">
-            Drag to rotate and scroll to zoom. Choose Done exploring to restore
-            page scrolling on touch devices.
-          </p>
+          <p className="cube-viz__hint">{t('visualization.hintExploring')}</p>
         ) : (
-          <p className="cube-viz__hint">
-            Page scrolling stays available. Choose Explore 3D to rotate and zoom
-            the scene.
-          </p>
+          <p className="cube-viz__hint">{t('visualization.hintIdle')}</p>
         )
       ) : null}
     </figure>

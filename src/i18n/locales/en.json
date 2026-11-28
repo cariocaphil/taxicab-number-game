@@ -1,0 +1,59 @@
+{
+  "common": {
+    "skipToContent": "Skip to content"
+  },
+  "meta": {
+    "title": "The Taxicab Number Game",
+    "description": "The Taxicab Number Game — discover the hidden mathematics behind taxi number plates, starting with 1729."
+  },
+  "home": {
+    "badge": "TAXI",
+    "brandName": "The Taxicab Number Game",
+    "footer": "An interactive journey into the mathematics of taxicab numbers."
+  },
+  "game": {
+    "heading": "Spot the Taxicab Number!",
+    "prompt": "One of these taxis is hiding a mathematical secret. Can you find the number that can be expressed as the sum of two positive cubes in two different ways?",
+    "fleetLabel": "Taxi fleet",
+    "continue": "Continue",
+    "feedbackSuccess": "Well spotted! Continue to uncover its mathematical secret.",
+    "feedbackIncorrect": "Not quite. {{plate}} is not the taxicab number. Try another taxi!",
+    "statusCorrect": "Correct",
+    "statusIncorrect": "Incorrect",
+    "taxiAriaLabel": "Taxi with license plate {{number}}",
+    "taxiAriaLabelWithStatus": "Taxi with license plate {{number}}, {{status}}"
+  },
+  "progressiveReveal": {
+    "heading": "Discover the representations",
+    "prompt": "Can you discover two different ways to express this number as the sum of two positive cubes?",
+    "newRound": "New round",
+    "restart": "Restart",
+    "revealFirst": "Reveal first representation",
+    "revealNext": "Reveal next representation",
+    "allRevealed": "All representations revealed",
+    "allRevealedAnnouncement": "All representations revealed.",
+    "representationRevealed": "Representation {{count}} of the cube sum equations has been revealed.",
+    "completion1729": "Congratulations! You discovered why 1729 is the smallest positive integer that can be expressed as the sum of two positive cubes in two distinct ways.",
+    "completionGeneric": "Congratulations! You discovered that {{target}} can be expressed as the sum of two positive cubes in two distinct ways — a member of OEIS sequence A001235.",
+    "plateLabel": "Taxi",
+    "plateAriaLabel": "Taxi license plate {{number}}",
+    "equationHiddenAriaLabel": "Unknown cubed plus unknown cubed equals {{target}}",
+    "equationRevealedAriaLabel": "{{a}} cubed plus {{b}} cubed equals {{target}}"
+  },
+  "visualization": {
+    "loading": "Loading 3D view…",
+    "explore": "Explore 3D",
+    "doneExploring": "Done exploring",
+    "resetCamera": "Reset camera",
+    "hintExploring": "Drag to rotate and scroll to zoom. Choose Done exploring to restore page scrolling on touch devices.",
+    "hintIdle": "Page scrolling stays available. Choose Explore 3D to rotate and zoom the scene.",
+    "fallbackUnavailable": "Interactive 3D view unavailable. The cube dimensions and volumes are listed above.",
+    "fallbackAriaLabel": "Static diagram of cubes with edges {{a}} and {{b}}",
+    "volume_one": "{{volume}} unit³",
+    "volume_other": "{{volume}} units³",
+    "explanationPrimary": "A cube with an edge length of {{edge}} contains {{edge}} × {{edge}} × {{edge}} = {{volume}} unit cubes.",
+    "explanationSecondary_one": "A cube with an edge length of {{edge}} contains {{volume}} unit cube.",
+    "explanationSecondary_other": "A cube with an edge length of {{edge}} contains {{volume}} unit cubes.",
+    "simplifiedGridDisclaimer": "For these larger cubes the visible surface grid is simplified and no longer marks every individual unit cube. The edge lengths and volumes above remain exact."
+  }
+}

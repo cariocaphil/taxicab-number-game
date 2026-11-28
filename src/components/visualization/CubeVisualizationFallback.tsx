@@ -1,8 +1,6 @@
 import { useId } from 'react'
+import { useTranslation } from 'react-i18next'
 import { CUBE_VARIANT_THEME } from './cubeTheme'
-
-const FALLBACK_MESSAGE =
-  'Interactive 3D view unavailable. The cube dimensions and volumes are listed above.'
 
 interface CubeVisualizationFallbackProps {
   readonly a: number
@@ -21,19 +19,24 @@ interface CubeVisualizationFallbackProps {
 export function CubeVisualizationFallback({
   a,
   b,
-  message = FALLBACK_MESSAGE,
+  message,
 }: CubeVisualizationFallbackProps) {
+  const { t } = useTranslation()
   const instanceId = useId().replace(/:/g, '')
   const maxEdge = Math.max(a, b)
   const scale = 7.5 / maxEdge
   const primary = CUBE_VARIANT_THEME.primary
   const secondary = CUBE_VARIANT_THEME.secondary
+  const resolvedMessage =
+    message === undefined
+      ? t('visualization.fallbackUnavailable')
+      : message
 
   return (
     <div
       className="cube-viz__fallback"
       role="img"
-      aria-label={`Static diagram of cubes with edges ${a} and ${b}`}
+      aria-label={t('visualization.fallbackAriaLabel', { a, b })}
     >
       <svg
         className="cube-viz__fallback-svg"
@@ -61,8 +64,8 @@ export function CubeVisualizationFallback({
           patternId={`cube-hatch-${instanceId}-secondary`}
         />
       </svg>
-      {message !== null ? (
-        <p className="cube-viz__fallback-message">{message}</p>
+      {resolvedMessage !== null ? (
+        <p className="cube-viz__fallback-message">{resolvedMessage}</p>
       ) : null}
     </div>
   )
