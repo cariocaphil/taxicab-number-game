@@ -6,6 +6,12 @@ const FALLBACK_MESSAGE =
 interface CubeVisualizationFallbackProps {
   readonly a: number
   readonly b: number
+  /**
+   * Availability copy under the diagram. Defaults to the WebGL-unavailable
+   * message. Pass `null` when the diagram is intentional (e.g. only one live
+   * WebGL view is allowed) and no availability warning is needed.
+   */
+  readonly message?: string | null
 }
 
 /**
@@ -14,6 +20,7 @@ interface CubeVisualizationFallbackProps {
 export function CubeVisualizationFallback({
   a,
   b,
+  message = FALLBACK_MESSAGE,
 }: CubeVisualizationFallbackProps) {
   const maxEdge = Math.max(a, b)
   const scale = 7.5 / maxEdge
@@ -50,7 +57,9 @@ export function CubeVisualizationFallback({
           hatch="secondary"
         />
       </svg>
-      <p className="cube-viz__fallback-message">{FALLBACK_MESSAGE}</p>
+      {message !== null ? (
+        <p className="cube-viz__fallback-message">{message}</p>
+      ) : null}
     </div>
   )
 }

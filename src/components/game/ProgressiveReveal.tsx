@@ -70,7 +70,12 @@ export function ProgressiveReveal({
               className="game-page__representation"
             >
               <CubeEquation pair={revealed} target={puzzle.target} />
-              {revealed ? <CubeVisualization pair={revealed} /> : null}
+              {revealed ? (
+                <CubeVisualization
+                  pair={revealed}
+                  enableWebGL={index === revealedCount - 1}
+                />
+              ) : null}
             </div>
           )
         })}

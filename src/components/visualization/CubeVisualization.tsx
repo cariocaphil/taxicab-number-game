@@ -23,9 +23,12 @@ const LazyCubePairVisualization = lazy(async () => {
 
 interface CubeVisualizationProps {
   readonly pair: CubePair
+  /**
+   * When false, skip WebGL and show a quiet static diagram so at most one
+   * interactive canvas is mounted across revealed representations.
+   */
+  readonly enableWebGL?: boolean
 }
-
-type SceneMode = 'webgl' | 'fallback'
 
 interface SceneErrorBoundaryProps {
   readonly a: number
@@ -74,18 +77,22 @@ function formatVolume(volume: number): string {
   return volume === 1 ? `${formatted} unit³` : `${formatted} units³`
 }
 
-export function CubeVisualization({ pair }: CubeVisualizationProps) {
+export function CubeVisualization({
+  pair,
+  enableWebGL = true,
+}: CubeVisualizationProps) {
   const captionId = useId()
   const volumeA = cube(pair.a)
   const volumeB = cube(pair.b)
   const simplified = pairUsesSimplifiedGrid(pair.a, pair.b)
 
-  const [sceneMode, setSceneMode] = useState<SceneMode>(() =>
-    isWebGLAvailable() ? 'webgl' : 'fallback',
-  )
+  const [webglSupported] = useState(() => isWebGLAvailable())
+  const [webglFailed, setWebglFailed] = useState(false)
   const [exploring, setExploring] = useState(false)
   const [resetToken, setResetToken] = useState(0)
   const [reducedMotion, setReducedMotion] = useState(prefersReducedMotion)
+
+  const showWebGL = enableWebGL && webglSupported && !webglFailed
 
   useEffect(() => {
     if (typeof window.matchMedia !== 'function') {
@@ -102,10 +109,16 @@ export function CubeVisualization({ pair }: CubeVisualizationProps) {
     }
   }, [])
 
+  useEffect(() => {
+    if (!enableWebGL) {
+      setExploring(false)
+    }
+  }, [enableWebGL])
+
   const switchToFallback = useCallback(() => {
     setExploring(false)
-    setSceneMode('fallback')
-  }, [setExploring, setSceneMode])
+    setWebglFailed(true)
+  }, [])
 
   return (
     <figure
@@ -113,6 +126,7 @@ export function CubeVisualization({ pair }: CubeVisualizationProps) {
       style={cubeVariantThemeCssVars()}
       aria-describedby={captionId}
       data-testid="cube-visualization"
+      data-webgl={showWebGL ? 'true' : 'false'}
     >
       <figcaption id={captionId} className="cube-viz__caption">
         <div className="cube-viz__dimensions">
@@ -154,7 +168,7 @@ export function CubeVisualization({ pair }: CubeVisualizationProps) {
         ) : null}
       </figcaption>
 
-      {sceneMode === 'webgl' ? (
+      {showWebGL ? (
         <SceneErrorBoundary
           a={pair.a}
           b={pair.b}
@@ -178,10 +192,14 @@ export function CubeVisualization({ pair }: CubeVisualizationProps) {
           </Suspense>
         </SceneErrorBoundary>
       ) : (
-        <CubeVisualizationFallback a={pair.a} b={pair.b} />
+        <CubeVisualizationFallback
+          a={pair.a}
+          b={pair.b}
+          message={enableWebGL ? undefined : null}
+        />
       )}
 
-      {sceneMode === 'webgl' ? (
+      {showWebGL ? (
         <div className="cube-viz__controls">
           <button
             type="button"
@@ -205,7 +223,7 @@ export function CubeVisualization({ pair }: CubeVisualizationProps) {
         </div>
       ) : null}
 
-      {sceneMode === 'webgl' ? (
+      {showWebGL ? (
         exploring ? (
           <p className="cube-viz__hint">
             Drag to rotate and scroll to zoom. Choose Done exploring to restore

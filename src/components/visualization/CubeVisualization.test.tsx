@@ -143,6 +143,27 @@ describe('CubeVisualization', () => {
     ).toBeNull()
   })
 
+  it('uses a quiet static diagram when WebGL is intentionally disabled', () => {
+    render(<CubeVisualization pair={pair} enableWebGL={false} />)
+
+    expect(
+      screen.getByRole('img', {
+        name: 'Static diagram of cubes with edges 1 and 12',
+      }),
+    ).toBeInTheDocument()
+    expect(screen.getByTestId('cube-visualization')).toHaveAttribute(
+      'data-webgl',
+      'false',
+    )
+    expect(
+      screen.queryByText(/Interactive 3D view unavailable/i),
+    ).toBeNull()
+    expect(screen.queryByTestId('mock-webgl-scene')).toBeNull()
+    expect(
+      screen.queryByRole('button', { name: 'Explore 3D' }),
+    ).toBeNull()
+  })
+
   it('keeps mathematical labels visible after a WebGL context-loss fallback', async () => {
     render(<CubeVisualization pair={pair} />)
 

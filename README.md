@@ -38,6 +38,7 @@ When a representation is revealed, the game shows an interactive 3D visualizatio
 - For large catalogue edges the surface grid is simplified; the UI states clearly that the grid no longer marks every unit cube while proportions and numeric labels remain exact.
 - **Explore 3D** is an explicit opt-in: OrbitControls stay off by default so mobile page scrolling is not blocked. After exploring, **Done exploring** restores normal scrolling. **Reset camera** restores the initial isometric framing.
 - Three.js is lazy-loaded only when a visualization mounts, so the selection phase does not pay the WebGL bundle cost up front.
+- At most one interactive WebGL canvas is mounted at a time: earlier revealed representations keep their math labels and switch to a quiet static diagram while the latest revealed representation owns the live 3D view.
 - If WebGL is unavailable, initialization fails, the lazy chunk fails, or the context is lost, a static diagram substitute is shown. Math labels are not duplicated into that fallback.
 - When the 3D path falls back, **Explore 3D** and **Reset camera** are hidden; captions and equations remain.
 - With `prefers-reduced-motion: reduce`, orbit damping is disabled for snappier camera interaction.
@@ -98,7 +99,7 @@ Visualization components live under `src/components/visualization/`:
 - `CubePairVisualization` (named export only) hosts a demand-framed R3F `Canvas`. The parent `lazy()` remaps the named export to `default` for code-splitting. CSS uses `width`/`height: 100% !important` on the canvas so it fills the aspect-ratio host despite R3F’s inline pixel sizing; revisit that override when upgrading `@react-three/fiber`.
 - `CubeVisualizationFallback.tsx` is the static SVG substitute plus a fixed availability message (no duplicate math labels).
 - Parent `CubeVisualization` owns educational copy once, gates WebGL vs fallback, and provides Explore / Reset controls. Resilience: Suspense shows a loading state; `SceneErrorBoundary` catches render/lazy failures; Canvas init errors and `webglcontextlost` switch to the static fallback.
-- Progressive revelation still uses only `revealedCount` from `useTaxicabGame`; visualizations appear iff a representation slot receives a non-null `CubePair`.
+- Progressive revelation still uses only `revealedCount` from `useTaxicabGame`; visualizations appear iff a representation slot receives a non-null `CubePair`. `enableWebGL` is true only for the most recently revealed slot so two canvases never run concurrently.
 
 **WebGL:** Required for the interactive scene. Without it, or after failure/context loss, the game remains fully playable with equations, labels, and the static diagram fallback.
 

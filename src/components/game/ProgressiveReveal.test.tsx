@@ -6,10 +6,15 @@ import { ProgressiveReveal } from './ProgressiveReveal'
 vi.mock('../visualization/CubeVisualization', () => ({
   CubeVisualization: ({
     pair,
+    enableWebGL = true,
   }: {
     readonly pair: { readonly a: number; readonly b: number }
+    readonly enableWebGL?: boolean
   }) => (
-    <div data-testid="cube-visualization">
+    <div
+      data-testid="cube-visualization"
+      data-enable-webgl={String(enableWebGL)}
+    >
       Visualization for {pair.a} and {pair.b}
     </div>
   ),
@@ -68,7 +73,8 @@ describe('ProgressiveReveal', () => {
       `${first.a} cubed plus ${first.b} cubed equals ${puzzle.target}`,
     )
     expect(equationAccessibleName(1)).toMatch(/unknown cubed/i)
-    expect(screen.getAllByTestId('cube-visualization')).toHaveLength(1)
+    const firstViz = screen.getByTestId('cube-visualization')
+    expect(firstViz).toHaveAttribute('data-enable-webgl', 'true')
     expect(
       screen.getByText(`Visualization for ${first.a} and ${first.b}`),
     ).toBeInTheDocument()
@@ -86,7 +92,10 @@ describe('ProgressiveReveal', () => {
     expect(equationAccessibleName(1)).toBe(
       `${second.a} cubed plus ${second.b} cubed equals ${puzzle.target}`,
     )
-    expect(screen.getAllByTestId('cube-visualization')).toHaveLength(2)
+    const visualizations = screen.getAllByTestId('cube-visualization')
+    expect(visualizations).toHaveLength(2)
+    expect(visualizations[0]).toHaveAttribute('data-enable-webgl', 'false')
+    expect(visualizations[1]).toHaveAttribute('data-enable-webgl', 'true')
   })
 
   it('shows completion and disables further reveals', () => {
