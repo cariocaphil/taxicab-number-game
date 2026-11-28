@@ -1,9 +1,11 @@
 import { CUBE_VARIANT_THEME } from './cubeTheme'
 
+const FALLBACK_MESSAGE =
+  'Interactive 3D view unavailable. The cube dimensions and volumes are listed above.'
+
 interface CubeVisualizationFallbackProps {
   readonly a: number
   readonly b: number
-  readonly message?: string
 }
 
 /**
@@ -12,7 +14,6 @@ interface CubeVisualizationFallbackProps {
 export function CubeVisualizationFallback({
   a,
   b,
-  message = 'Interactive 3D view unavailable. The cube dimensions and volumes are listed above.',
 }: CubeVisualizationFallbackProps) {
   const maxEdge = Math.max(a, b)
   const scale = 7.5 / maxEdge
@@ -49,7 +50,7 @@ export function CubeVisualizationFallback({
           hatch="secondary"
         />
       </svg>
-      <p className="cube-viz__fallback-message">{message}</p>
+      <p className="cube-viz__fallback-message">{FALLBACK_MESSAGE}</p>
     </div>
   )
 }
