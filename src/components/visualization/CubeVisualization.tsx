@@ -27,6 +27,8 @@ interface CubeVisualizationProps {
 type SceneMode = 'webgl' | 'fallback'
 
 interface SceneErrorBoundaryProps {
+  readonly a: number
+  readonly b: number
   readonly onError: () => void
   readonly children: ReactNode
 }
@@ -51,7 +53,9 @@ class SceneErrorBoundary extends Component<
 
   public render(): ReactNode {
     if (this.state.hasError) {
-      return null
+      return (
+        <CubeVisualizationFallback a={this.props.a} b={this.props.b} />
+      )
     }
     return this.props.children
   }
@@ -149,7 +153,11 @@ export function CubeVisualization({ pair }: CubeVisualizationProps) {
       </figcaption>
 
       {sceneMode === 'webgl' ? (
-        <SceneErrorBoundary onError={switchToFallback}>
+        <SceneErrorBoundary
+          a={pair.a}
+          b={pair.b}
+          onError={switchToFallback}
+        >
           <Suspense
             fallback={
               <div className="cube-viz__loading" role="status">
