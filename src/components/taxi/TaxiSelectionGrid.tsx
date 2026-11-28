@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import { TaxiCab } from './TaxiCab'
 import '../../styles/taxi-selection.css'
 
@@ -31,11 +32,28 @@ export function TaxiSelectionGrid({
   onSelect,
   onContinue,
 }: TaxiSelectionGridProps) {
+  const headingRef = useRef<HTMLHeadingElement>(null)
+  const continueRef = useRef<HTMLButtonElement>(null)
   const selectionsLocked = correctSelected
+
+  useEffect(() => {
+    headingRef.current?.focus()
+  }, [])
+
+  useEffect(() => {
+    if (correctSelected) {
+      continueRef.current?.focus()
+    }
+  }, [correctSelected])
 
   return (
     <section className="taxi-selection" aria-labelledby="selection-heading">
-      <h1 id="selection-heading" className="taxi-selection__heading">
+      <h1
+        id="selection-heading"
+        className="taxi-selection__heading"
+        tabIndex={-1}
+        ref={headingRef}
+      >
         Spot the Taxicab Number!
       </h1>
 
@@ -78,6 +96,7 @@ export function TaxiSelectionGrid({
 
       {correctSelected ? (
         <button
+          ref={continueRef}
           type="button"
           className="taxi-selection__continue"
           onClick={onContinue}

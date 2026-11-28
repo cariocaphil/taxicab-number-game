@@ -98,6 +98,7 @@ describe('GamePage', () => {
     expect(
       screen.getByText(/Well spotted! Continue to uncover/i),
     ).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Continue' })).toHaveFocus()
 
     for (const candidate of [4104, 1234, 5678, 12345, 67890, 123456]) {
       const buttons = screen.getAllByRole('button').filter((button) =>
@@ -195,12 +196,12 @@ describe('GamePage', () => {
     )
     fireEvent.click(screen.getByRole('button', { name: 'New round' }))
 
-    expect(
-      screen.getByRole('heading', {
-        level: 1,
-        name: 'Spot the Taxicab Number!',
-      }),
-    ).toBeInTheDocument()
+    const selectionHeading = screen.getByRole('heading', {
+      level: 1,
+      name: 'Spot the Taxicab Number!',
+    })
+    expect(selectionHeading).toBeInTheDocument()
+    expect(selectionHeading).toHaveFocus()
     expect(
       screen.getByRole('button', {
         name: 'Taxi with license plate 1729',
