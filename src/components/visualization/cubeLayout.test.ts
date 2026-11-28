@@ -26,6 +26,8 @@ describe('gridDensityForEdge', () => {
   })
 
   it('simplifies the surface grid for large edges including catalogue max', () => {
+    expect(CATALOGUE_MAX_EDGE).toBeGreaterThan(FULL_UNIT_GRID_MAX_EDGE)
+
     const density = gridDensityForEdge(CATALOGUE_MAX_EDGE)
     expect(density.isSimplified).toBe(true)
     expect(density.segments).toBe(MAX_SIMPLIFIED_GRID_SEGMENTS)
