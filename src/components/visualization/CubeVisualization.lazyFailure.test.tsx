@@ -1,6 +1,9 @@
-import { render, screen, waitFor } from '@testing-library/react'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { cube } from '../../domain/taxicab'
+import { render, waitFor } from '@testing-library/react'
+import { afterEach, beforeEach, describe, it, vi } from 'vitest'
+import {
+  expectSingleStaticDiagram,
+  expectStaticFallback,
+} from './cubeVisualizationAssertions'
 import { isWebGLAvailable } from './webglSupport'
 
 const pair = { a: 1, b: 12 } as const
@@ -35,22 +38,9 @@ describe('CubeVisualization lazy-load failure fallback', () => {
     render(<CubeVisualization pair={pair} />)
 
     await waitFor(() => {
-      expect(
-        screen.getAllByRole('img', { name: /Static diagram of cubes/i }),
-      ).toHaveLength(1)
+      expectSingleStaticDiagram()
     })
 
-    expect(screen.getByText('1 × 1 × 1')).toBeInTheDocument()
-    expect(screen.getByText('12 × 12 × 12')).toBeInTheDocument()
-    expect(screen.getByText('1 unit³')).toBeInTheDocument()
-    expect(
-      screen.getByText(`${cube(12).toLocaleString('en-US')} units³`),
-    ).toBeInTheDocument()
-    expect(
-      screen.getByText(/A cube with an edge length of 12 contains/i),
-    ).toBeInTheDocument()
-    expect(
-      screen.queryByRole('button', { name: 'Explore 3D' }),
-    ).toBeNull()
+    expectStaticFallback(pair)
   })
 })

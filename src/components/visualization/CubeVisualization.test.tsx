@@ -1,6 +1,10 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { CATALOGUE_MAX_EDGE, cube } from '../../domain/taxicab'
+import {
+  expectCubeMathLabels,
+  expectStaticFallback,
+} from './cubeVisualizationAssertions'
 import { isWebGLAvailable } from './webglSupport'
 import { CubeVisualization } from './CubeVisualization'
 
@@ -58,14 +62,7 @@ describe('CubeVisualization', () => {
     render(<CubeVisualization pair={pair} />)
 
     expect(await screen.findByText('1 × 1 × 1')).toBeInTheDocument()
-    expect(screen.getByText('12 × 12 × 12')).toBeInTheDocument()
-    expect(screen.getByText('1 unit³')).toBeInTheDocument()
-    expect(
-      screen.getByText(`${cube(12).toLocaleString('en-US')} units³`),
-    ).toBeInTheDocument()
-    expect(
-      screen.getByText(/A cube with an edge length of 12 contains/i),
-    ).toBeInTheDocument()
+    expectCubeMathLabels(pair)
     expect(screen.queryByRole('img', { name: /Static diagram/i })).toBeNull()
   })
 
@@ -127,41 +124,17 @@ describe('CubeVisualization', () => {
 
     render(<CubeVisualization pair={pair} />)
 
-    expect(
-      screen.getByRole('img', {
-        name: 'Static diagram of cubes with edges 1 and 12',
-      }),
-    ).toBeInTheDocument()
-    expect(screen.getByText('1 × 1 × 1')).toBeInTheDocument()
-    expect(screen.getByText('12 × 12 × 12')).toBeInTheDocument()
-    expect(
-      screen.getByText(/Interactive 3D view unavailable/i),
-    ).toBeInTheDocument()
-    expect(screen.queryByTestId('mock-webgl-scene')).toBeNull()
-    expect(
-      screen.queryByRole('button', { name: 'Explore 3D' }),
-    ).toBeNull()
+    expectStaticFallback(pair)
   })
 
   it('uses a quiet static diagram when WebGL is intentionally disabled', () => {
     render(<CubeVisualization pair={pair} enableWebGL={false} />)
 
-    expect(
-      screen.getByRole('img', {
-        name: 'Static diagram of cubes with edges 1 and 12',
-      }),
-    ).toBeInTheDocument()
     expect(screen.getByTestId('cube-visualization')).toHaveAttribute(
       'data-webgl',
       'false',
     )
-    expect(
-      screen.queryByText(/Interactive 3D view unavailable/i),
-    ).toBeNull()
-    expect(screen.queryByTestId('mock-webgl-scene')).toBeNull()
-    expect(
-      screen.queryByRole('button', { name: 'Explore 3D' }),
-    ).toBeNull()
+    expectStaticFallback(pair, { availabilityMessage: 'absent' })
   })
 
   it('keeps mathematical labels visible after a WebGL context-loss fallback', async () => {
@@ -173,24 +146,7 @@ describe('CubeVisualization', () => {
       screen.getByRole('button', { name: 'Simulate context loss' }),
     )
 
-    expect(
-      screen.getByRole('img', {
-        name: 'Static diagram of cubes with edges 1 and 12',
-      }),
-    ).toBeInTheDocument()
-    expect(screen.getByText('1 × 1 × 1')).toBeInTheDocument()
-    expect(screen.getByText('12 × 12 × 12')).toBeInTheDocument()
-    expect(screen.getByText('1 unit³')).toBeInTheDocument()
-    expect(
-      screen.getByText(`${cube(12).toLocaleString('en-US')} units³`),
-    ).toBeInTheDocument()
-    expect(
-      screen.getByText(/A cube with an edge length of 12 contains/i),
-    ).toBeInTheDocument()
-    expect(screen.queryByTestId('mock-webgl-scene')).toBeNull()
-    expect(
-      screen.queryByRole('button', { name: 'Explore 3D' }),
-    ).toBeNull()
+    expectStaticFallback(pair)
   })
 
   it('switches to the static fallback when WebGL initialization fails', async () => {
@@ -202,24 +158,7 @@ describe('CubeVisualization', () => {
       screen.getByRole('button', { name: 'Simulate init error' }),
     )
 
-    expect(
-      screen.getByRole('img', {
-        name: 'Static diagram of cubes with edges 1 and 12',
-      }),
-    ).toBeInTheDocument()
-    expect(screen.getByText('1 × 1 × 1')).toBeInTheDocument()
-    expect(screen.getByText('12 × 12 × 12')).toBeInTheDocument()
-    expect(screen.getByText('1 unit³')).toBeInTheDocument()
-    expect(
-      screen.getByText(`${cube(12).toLocaleString('en-US')} units³`),
-    ).toBeInTheDocument()
-    expect(
-      screen.getByText(/A cube with an edge length of 12 contains/i),
-    ).toBeInTheDocument()
-    expect(screen.queryByTestId('mock-webgl-scene')).toBeNull()
-    expect(
-      screen.queryByRole('button', { name: 'Explore 3D' }),
-    ).toBeNull()
+    expectStaticFallback(pair)
   })
 
   it('increments resetToken when Reset camera is clicked without exploring', async () => {
