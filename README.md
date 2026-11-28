@@ -39,6 +39,8 @@ When a representation is revealed, the game shows an interactive 3D visualizatio
 - **Explore 3D** is an explicit opt-in: OrbitControls stay off by default so mobile page scrolling is not blocked. After exploring, **Done exploring** restores normal scrolling. **Reset camera** restores the initial isometric framing.
 - Three.js is lazy-loaded only when a visualization mounts, so the selection phase does not pay the WebGL bundle cost up front.
 - If WebGL is unavailable, initialization fails, the lazy chunk fails, or the context is lost, a static diagram substitute is shown. Math labels are not duplicated into that fallback.
+- When the 3D path falls back, **Explore 3D** and **Reset camera** are hidden; captions and equations remain.
+- With `prefers-reduced-motion: reduce`, orbit damping is disabled for snappier camera interaction.
 
 ## Mathematical domain
 
@@ -58,7 +60,7 @@ The pure TypeScript domain lives in `src/domain/taxicab/` and has **no React dep
 
 ### Puzzle catalogue
 
-`TAXICAB_PUZZLES` is a local, deterministic curated subset of A001235 (≥12 puzzles) covering four-, five-, and six-digit targets. Each entry for this PR has **exactly two** representations, verified against `findCubePairs`. Existing IDs such as `1729` remain stable. There is **no** runtime OEIS fetch. Catalogue cube edges range up to **53**.
+`TAXICAB_PUZZLES` is a local, deterministic curated subset of A001235 (≥12 puzzles) covering four-, five-, and six-digit targets. Each catalogue entry has **exactly two** representations, verified against `findCubePairs`. Existing IDs such as `1729` remain stable. There is **no** runtime OEIS fetch. The largest representation edge is `CATALOGUE_MAX_EDGE` (currently **53**), derived from `TAXICAB_PUZZLES` in `src/domain/taxicab/puzzles.ts`.
 
 ### Round generation strategy
 
@@ -88,10 +90,14 @@ Generation uses **bounded random sampling** (128 attempts) then a **capped seque
 
 Visualization components live under `src/components/visualization/`:
 
-- Pure helpers in `cubeLayout.ts` / `surfaceGrid.ts` compute placement, camera framing, and surface-grid density without WebGL.
+- Pure helpers in `cubeLayout.ts` / `surfaceGrid.ts` compute placement, camera framing, and surface-grid density without WebGL. Edges ≤ 16 use a full unit surface grid; larger edges use up to 12 segments.
+- `cubeTheme.ts` holds shared `CUBE_VARIANT_THEME` for WebGL materials, caption CSS variables, and the static fallback SVG.
+- `webglSupport.ts` exposes `isWebGLAvailable()` (mockable in tests).
 - `UnitCubeBlock` renders one solid cube with a surface grid (not `n³` voxel meshes).
-- `CubePairVisualization` hosts a demand-framed R3F `Canvas`. CSS uses `width`/`height: 100% !important` on the canvas so it fills the aspect-ratio host despite R3F’s inline pixel sizing; revisit that override when upgrading `@react-three/fiber`.
-- Parent `CubeVisualization` owns educational copy once, gates WebGL vs fallback, and provides Explore / Reset controls.
+- `CubeScene.tsx` owns lights, blocks, isometric framing, `resetToken` camera reset, and ExploreControls only while exploring.
+- `CubePairVisualization` (named export only) hosts a demand-framed R3F `Canvas`. The parent `lazy()` remaps the named export to `default` for code-splitting. CSS uses `width`/`height: 100% !important` on the canvas so it fills the aspect-ratio host despite R3F’s inline pixel sizing; revisit that override when upgrading `@react-three/fiber`.
+- `CubeVisualizationFallback.tsx` is the static SVG substitute plus a fixed availability message (no duplicate math labels).
+- Parent `CubeVisualization` owns educational copy once, gates WebGL vs fallback, and provides Explore / Reset controls. Resilience: Suspense shows a loading state; `SceneErrorBoundary` catches render/lazy failures; Canvas init errors and `webglcontextlost` switch to the static fallback.
 - Progressive revelation still uses only `revealedCount` from `useTaxicabGame`; visualizations appear iff a representation slot receives a non-null `CubePair`.
 
 **WebGL:** Required for the interactive scene. Without it, or after failure/context loss, the game remains fully playable with equations, labels, and the static diagram fallback.
@@ -121,6 +127,7 @@ pnpm dev
 pnpm lint
 pnpm typecheck
 pnpm test
+pnpm test:watch
 ```
 
 Domain unit tests run under Vitest’s node environment and do not require a browser. Visualization layout math is tested without a real WebGL context; Canvas rendering is mocked at the module boundary.
