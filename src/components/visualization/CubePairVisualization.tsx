@@ -89,5 +89,3 @@ export function CubePairVisualization({
     </div>
   )
 }
-
-export default CubePairVisualization
