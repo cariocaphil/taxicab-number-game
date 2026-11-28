@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { TaxiCab } from './TaxiCab'
+import { TaxiCab, TaxiCabStatus } from './TaxiCab'
 import '../../styles/taxi-selection.css'
 
 interface TaxiSelectionGridProps {
@@ -77,10 +77,10 @@ export function TaxiSelectionGrid({
           const isIncorrect = incorrectSelections.has(number)
           const isCorrect = correctSelected && number === target
           const status = isCorrect
-            ? 'correct'
+            ? TaxiCabStatus.Correct
             : isIncorrect
-              ? 'incorrect'
-              : 'default'
+              ? TaxiCabStatus.Incorrect
+              : TaxiCabStatus.Default
           const disabled = selectionsLocked || isIncorrect
 
           return (

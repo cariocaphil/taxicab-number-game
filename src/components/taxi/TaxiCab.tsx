@@ -1,6 +1,13 @@
 import { useTranslation } from 'react-i18next'
 
-type TaxiCabStatus = 'default' | 'incorrect' | 'correct'
+export const TaxiCabStatus = {
+  Default: 'default',
+  Incorrect: 'incorrect',
+  Correct: 'correct',
+} as const
+
+export type TaxiCabStatus =
+  (typeof TaxiCabStatus)[keyof typeof TaxiCabStatus]
 
 interface TaxiCabProps {
   readonly number: number
@@ -18,9 +25,9 @@ export function TaxiCab({
   const { t } = useTranslation()
 
   const statusText =
-    status === 'incorrect'
+    status === TaxiCabStatus.Incorrect
       ? t('game.statusIncorrect')
-      : status === 'correct'
+      : status === TaxiCabStatus.Correct
         ? t('game.statusCorrect')
         : ''
 
@@ -31,8 +38,8 @@ export function TaxiCab({
 
   const className = [
     'taxi-cab',
-    status === 'incorrect' ? 'taxi-cab--incorrect' : '',
-    status === 'correct' ? 'taxi-cab--correct' : '',
+    status === TaxiCabStatus.Incorrect ? 'taxi-cab--incorrect' : '',
+    status === TaxiCabStatus.Correct ? 'taxi-cab--correct' : '',
   ]
     .filter(Boolean)
     .join(' ')
