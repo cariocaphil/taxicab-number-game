@@ -1,80 +1,168 @@
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
-import { getPuzzleById } from '../domain/taxicab'
+import {
+  generateTaxicabRound,
+  getPuzzleById,
+  type TaxicabRound,
+} from '../domain/taxicab'
 import { GamePage } from './GamePage'
 
-const puzzle = getPuzzleById('1729')
-
-if (puzzle === undefined) {
-  throw new Error('Expected catalogue puzzle with id "1729"')
+function requirePuzzle(id: string) {
+  const puzzle = getPuzzleById(id)
+  if (puzzle === undefined) {
+    throw new Error(`Expected catalogue puzzle ${id}`)
+  }
+  return puzzle
 }
 
-function getEquationRegions() {
-  return screen.getAllByRole('math')
-}
+const puzzle4104 = requirePuzzle('4104')
 
-function equationAccessibleName(index: number) {
-  return getEquationRegions()[index]?.getAttribute('aria-label') ?? ''
+function fixedRound(overrides?: Partial<TaxicabRound>): TaxicabRound {
+  return {
+    puzzle: puzzle4104,
+    candidates: [4104, 1234, 5678, 12345, 67890, 123456],
+    ...overrides,
+  }
 }
 
 describe('GamePage', () => {
-  it('displays the target number and starts with all representations hidden', () => {
-    render(<GamePage />)
+  it('displays the selection phase initially and hides progressive reveal', () => {
+    render(
+      <GamePage
+        sessionOptions={{
+          generateRound: () => fixedRound(),
+        }}
+      />,
+    )
 
     expect(
-      screen.getByRole('img', { name: `Taxi license plate ${puzzle.target}` }),
+      screen.getByRole('heading', {
+        level: 1,
+        name: 'Spot the Taxicab Number!',
+      }),
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Reveal first representation' }),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.getByRole('button', {
+        name: 'Taxi with license plate 4104',
+      }),
+    ).toBeInTheDocument()
+  })
+
+  it('provides feedback for incorrect selections and prevents repeats', () => {
+    render(
+      <GamePage
+        sessionOptions={{
+          generateRound: () => fixedRound(),
+        }}
+      />,
+    )
+
+    const wrong = screen.getByRole('button', {
+      name: 'Taxi with license plate 1234',
+    })
+    fireEvent.click(wrong)
+
+    expect(
+      screen.getByText(
+        /Not quite\. 1234 is not the taxicab number\. Try another taxi!/i,
+      ),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', {
+        name: 'Taxi with license plate 1234, Incorrect',
+      }),
+    ).toBeDisabled()
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Taxi with license plate 1234, Incorrect',
+      }),
+    )
+    expect(
+      screen.getByText(
+        /Not quite\. 1234 is not the taxicab number\. Try another taxi!/i,
+      ),
     ).toBeInTheDocument()
 
-    const equations = getEquationRegions()
-    expect(equations).toHaveLength(puzzle.representations.length)
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Taxi with license plate 5678',
+      }),
+    )
+    expect(
+      screen.getByText(
+        /Not quite\. 5678 is not the taxicab number\. Try another taxi!/i,
+      ),
+    ).toBeInTheDocument()
+  })
 
-    for (let index = 0; index < equations.length; index += 1) {
-      expect(equationAccessibleName(index)).toMatch(/unknown cubed/i)
-      expect(equationAccessibleName(index)).not.toMatch(/\d+ cubed plus \d+/i)
+  it('locks all taxis after a correct selection and unlocks reveal via Continue', () => {
+    render(
+      <GamePage
+        sessionOptions={{
+          generateRound: () => fixedRound(),
+        }}
+      />,
+    )
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Taxi with license plate 4104',
+      }),
+    )
+
+    expect(
+      screen.getByText(/Well spotted! Continue to uncover/i),
+    ).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Continue' })).toHaveFocus()
+
+    for (const candidate of [4104, 1234, 5678, 12345, 67890, 123456]) {
+      const buttons = screen.getAllByRole('button').filter((button) =>
+        (button.getAttribute('aria-label') ?? '').includes(
+          `license plate ${candidate}`,
+        ),
+      )
+      expect(buttons.length).toBeGreaterThan(0)
+      for (const button of buttons) {
+        expect(button).toBeDisabled()
+      }
     }
 
+    fireEvent.click(screen.getByRole('button', { name: 'Continue' }))
+
+    expect(
+      screen.getByRole('heading', {
+        level: 1,
+        name: 'Discover the representations',
+      }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('img', { name: 'Taxi license plate 4104' }),
+    ).toBeInTheDocument()
     expect(
       screen.getByRole('button', { name: 'Reveal first representation' }),
     ).toBeEnabled()
-    expect(
-      screen.queryByText(/congratulations/i),
-    ).not.toBeInTheDocument()
   })
 
-  it('reveals representations progressively from domain data', () => {
-    render(<GamePage />)
-    const [first, second] = puzzle.representations
+  it('runs progressive reveal for the selected non-1729 puzzle', () => {
+    const [first, second] = puzzle4104.representations
+    render(
+      <GamePage
+        sessionOptions={{
+          generateRound: () => fixedRound(),
+        }}
+      />,
+    )
 
     fireEvent.click(
-      screen.getByRole('button', { name: 'Reveal first representation' }),
+      screen.getByRole('button', {
+        name: 'Taxi with license plate 4104',
+      }),
     )
-
-    expect(equationAccessibleName(0)).toBe(
-      `${first.a} cubed plus ${first.b} cubed equals ${puzzle.target}`,
-    )
-    expect(equationAccessibleName(1)).toMatch(/unknown cubed/i)
-    expect(
-      screen.getByRole('button', { name: 'Reveal next representation' }),
-    ).toBeEnabled()
-    expect(
-      screen.queryByText(/congratulations/i),
-    ).not.toBeInTheDocument()
-
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Reveal next representation' }),
-    )
-
-    expect(equationAccessibleName(0)).toBe(
-      `${first.a} cubed plus ${first.b} cubed equals ${puzzle.target}`,
-    )
-    expect(equationAccessibleName(1)).toBe(
-      `${second.a} cubed plus ${second.b} cubed equals ${puzzle.target}`,
-    )
-  })
-
-  it('shows completion and disables further reveals', () => {
-    render(<GamePage />)
-
+    fireEvent.click(screen.getByRole('button', { name: 'Continue' }))
     fireEvent.click(
       screen.getByRole('button', { name: 'Reveal first representation' }),
     )
@@ -82,52 +170,82 @@ describe('GamePage', () => {
       screen.getByRole('button', { name: 'Reveal next representation' }),
     )
 
-    expect(
-      document.querySelector('.game-completion'),
-    ).toHaveTextContent(
-      /Congratulations! You discovered why 1729 is the smallest positive integer/i,
+    expect(document.querySelector('.game-completion')).toHaveTextContent(
+      /4104 can be expressed as the sum of two positive cubes/i,
+    )
+    expect(screen.getByRole('math', {
+      name: `${first.a} cubed plus ${first.b} cubed equals 4104`,
+    })).toBeInTheDocument()
+    expect(screen.getByRole('math', {
+      name: `${second.a} cubed plus ${second.b} cubed equals 4104`,
+    })).toBeInTheDocument()
+  })
+
+  it('starts a new round that resets selection and reveal state', () => {
+    let calls = 0
+    const first = fixedRound()
+    const secondPuzzle = requirePuzzle('1729')
+    const second: TaxicabRound = {
+      puzzle: secondPuzzle,
+      candidates: [1729, 2000, 3000, 20000, 30000, 200000],
+    }
+
+    render(
+      <GamePage
+        sessionOptions={{
+          generateRound: () => {
+            calls += 1
+            return calls === 1 ? first : second
+          },
+        }}
+      />,
     )
 
-    const revealButton = screen.getByRole('button', {
-      name: 'All representations revealed',
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Taxi with license plate 4104',
+      }),
+    )
+    fireEvent.click(screen.getByRole('button', { name: 'Continue' }))
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Reveal first representation' }),
+    )
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Reveal next representation' }),
+    )
+    fireEvent.click(screen.getByRole('button', { name: 'New round' }))
+
+    const selectionHeading = screen.getByRole('heading', {
+      level: 1,
+      name: 'Spot the Taxicab Number!',
     })
-    expect(revealButton).toBeDisabled()
-
-    fireEvent.click(revealButton)
-    expect(getEquationRegions()).toHaveLength(puzzle.representations.length)
-    expect(revealButton).toBeDisabled()
-  })
-
-  it('restarts without reloading and hides answers again', () => {
-    render(<GamePage />)
-
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Reveal first representation' }),
-    )
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Reveal next representation' }),
-    )
-
-    fireEvent.click(screen.getByRole('button', { name: 'Restart' }))
-
-    for (let index = 0; index < puzzle.representations.length; index += 1) {
-      expect(equationAccessibleName(index)).toMatch(/unknown cubed/i)
-    }
-
+    expect(selectionHeading).toBeInTheDocument()
+    expect(selectionHeading).toHaveFocus()
     expect(
-      screen.queryByText(/congratulations/i),
+      screen.getByRole('button', {
+        name: 'Taxi with license plate 1729',
+      }),
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Reveal first representation' }),
     ).not.toBeInTheDocument()
-    expect(
-      screen.getByRole('button', { name: 'Reveal first representation' }),
-    ).toBeEnabled()
+    expect(calls).toBe(2)
   })
 
-  it('keeps a polite live region mounted before the first reveal', () => {
-    const { container } = render(<GamePage />)
-    const liveRegion = container.querySelector('[aria-live="polite"]')
-
-    expect(liveRegion).not.toBeNull()
-    expect(liveRegion).toBeInTheDocument()
-    expect(within(liveRegion as HTMLElement).queryByText(/./)).toBeNull()
+  it('can generate a live mixed-digit round through the domain helper', () => {
+    const round = generateTaxicabRound({ random: () => 0.42 })
+    expect(round.candidates).toHaveLength(6)
+    render(
+      <GamePage
+        sessionOptions={{
+          generateRound: () => round,
+        }}
+      />,
+    )
+    expect(
+      screen.getByRole('button', {
+        name: `Taxi with license plate ${round.puzzle.target}`,
+      }),
+    ).toBeInTheDocument()
   })
 })

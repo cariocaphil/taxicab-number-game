@@ -10,21 +10,27 @@ describe('App', () => {
     ).toBeInTheDocument()
   })
 
-  it('features the number 1729', () => {
+  it('uses a neutral brand plate that does not spoil the target', () => {
     render(<App />)
-    expect(screen.getAllByText(/1729/).length).toBeGreaterThan(0)
+    expect(screen.getByText('TAXI')).toBeInTheDocument()
+    const brand = document.querySelector('.brand__plate')
+    expect(brand).toHaveTextContent('TAXI')
+    expect(brand).not.toHaveTextContent('1729')
   })
 
-  it('renders the interactive game', () => {
+  it('renders the taxi selection game initially', () => {
     render(<App />)
     expect(
       screen.getByRole('heading', {
         level: 1,
-        name: 'Discover the taxicab number',
+        name: 'Spot the Taxicab Number!',
       }),
     ).toBeInTheDocument()
     expect(
-      screen.getByRole('button', { name: 'Reveal first representation' }),
-    ).toBeInTheDocument()
+      screen.queryByRole('button', { name: 'Reveal first representation' }),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.getAllByRole('button', { name: /Taxi with license plate/ }),
+    ).toHaveLength(6)
   })
 })

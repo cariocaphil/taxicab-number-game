@@ -5,7 +5,7 @@ export function AppHeader() {
       <div className="app-header__inner">
         <a className="brand" href="#main">
           <span className="brand__plate" aria-hidden="true">
-            1729
+            TAXI
           </span>
           <span className="brand__name">The Taxicab Number Game</span>
         </a>
